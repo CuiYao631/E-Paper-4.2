@@ -17,8 +17,8 @@ GxEPD2_2IC_BW<GxEPD2_2IC_420_A03, GxEPD2_2IC_420_A03::HEIGHT> display(GxEPD2_2IC
 U8G2_FOR_ADAFRUIT_GFX u8g2Fonts;
 
 // 定义进度条参数
-int16_t progressBarX = 20;
-int16_t progressBarY = 40;
+int16_t progressBarX = display.width() / 2 / 2;
+int16_t progressBarY = 200;
 int16_t progressBarWidth = 200;
 int16_t progressBarHeight = 20;
 int16_t progress = 0;
@@ -54,6 +54,7 @@ void setup()
   display.fillScreen(GxEPD_WHITE);
   DrawRectangle();
   DrawCircle();
+  DrawFont();
   //显示屏休眠
   display.hibernate();
 }
@@ -94,14 +95,7 @@ void DrawRectangle(){
 
   // 绘制矩形
   display.drawRect(x, y, width, height, color);
-  u8g2Fonts.setCursor(5, 25);
-  u8g2Fonts.println("不要温顺的走进那个良夜，");
-  u8g2Fonts.println("激情不能被消沉的暮色淹没，");
-  u8g2Fonts.println("咆哮吧，咆哮，痛斥那光的退缩。");
-  u8g2Fonts.println("智者在临终的时候，对黑暗妥协，");
-  u8g2Fonts.println("是因为它们的语言已黯然失色，");//");
-  u8g2Fonts.println("它们不想被夜色迷惑，");
-  u8g2Fonts.println("咆哮吧，咆哮，痛斥那光的退缩。");
+
 
   // 更新显示
   display.display();
@@ -124,7 +118,19 @@ void DrawCircle(){
    // 等待一段时间
   delay(5000);
 }
-
+//显示文字
+void DrawFont(){
+  u8g2Fonts.setCursor(0, 80);
+  u8g2Fonts.println("不要温顺的走进那个良夜，");
+  u8g2Fonts.println("激情不能被消沉的暮色淹没，");
+  u8g2Fonts.println("咆哮吧，咆哮，痛斥那光的退缩。");
+  u8g2Fonts.println("智者在临终的时候，对黑暗妥协，");
+  u8g2Fonts.println("是因为它们的语言已黯然失色，");//");
+  u8g2Fonts.println("它们不想被夜色迷惑，");
+  u8g2Fonts.println("咆哮吧，咆哮，痛斥那光的退缩。");
+  // 更新显示
+  display.display(true);
+}
 
 void loop() {
  // 设置进度条背景颜色
@@ -138,12 +144,15 @@ void loop() {
   int16_t progressWidth = map(progress, 0, 100, 0, progressBarWidth);
   // 绘制进度条填充矩形
   display.fillRect(progressBarX, progressBarY, progressWidth, progressBarHeight, progressColor);
+  u8g2Fonts.setCursor(display.width() / 2, progressBarY+20);
+  u8g2Fonts.print(progress);
+  u8g2Fonts.println("%");
 
   // 更新显示
   display.display(true);
 
   // 增加进度
-  progress += 5;
+  progress += 1;
   if (progress > 100) {
 
     progress = 0;
