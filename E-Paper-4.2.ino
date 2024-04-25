@@ -11,6 +11,7 @@
 #include "WiFi.h"
 #include "btn.h"
 #include <U8g2_for_Adafruit_GFX.h>//中文库
+#include "image.h"
 
 // 初始化墨水屏
 GxEPD2_2IC_BW<GxEPD2_2IC_420_A03, GxEPD2_2IC_420_A03::HEIGHT> display(GxEPD2_2IC_420_A03(/*CS=*/ 27,/*CS1=*/26,/*DC=*/ 5, /*RST=*/ 17, /*BUSY=*/ 16)); // GDEH042A03-A1
@@ -28,20 +29,38 @@ void setup()
 {
   // 初始化串口
   Serial.begin(115200);
+  
   // 初始化墨水屏
   display.init(115200);
+  Serial.println(display.width());
+  Serial.println(display.height());
   u8g2Fonts.begin(display);
   u8g2Fonts.setFontDirection(0);      
   u8g2Fonts.setForegroundColor(GxEPD_BLACK);             // 设置前景色
   u8g2Fonts.setBackgroundColor(GxEPD_WHITE);             // 设置背景色
   u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);
   //开机加载
+  //清空屏幕
+  display.fillScreen(GxEPD_WHITE);
+  //开机画面
+  DrawImage();
+  //开机进度条
+  onProgressBar(1,progressBarX+30,"加载系统引导中...");
+  //初始化
 
-  //初始化WIFI
-  //wifi_connect();
+  onProgressBar(10,progressBarX+30,"加载系统文件中...");
+  //加载文件
+
+  onProgressBar(30,progressBarX+30,"加载系统配置文件中...");
+  //加载系统配置
+
+  onProgressBar(60,progressBarX+50,"正在连接WIFI...");
+  //连接wifi
+  wifi_connect()
+  onProgressBar(100,progressBarX+70,"加载完成");
   //初始化按键
   //BtnI nit();
-  //开机画面
+  
   
   //显示Hello World
   // helloWorld();
@@ -50,11 +69,12 @@ void setup()
   // delay(1000);
   // helloWorld();
   // delay(1000);
-  // 清空屏幕
-  display.fillScreen(GxEPD_WHITE);
-  DrawRectangle();
-  DrawCircle();
-  DrawFont();
+  
+  // DrawRectangle();
+  // DrawCircle();
+  // DrawFont();
+   
+
   //显示屏休眠
   display.hibernate();
 }
@@ -85,10 +105,10 @@ void helloWorld()
 //绘制矩形
 void DrawRectangle(){
   // 设置矩形的坐标和大小
-  int16_t x = 10;
-  int16_t y = 10;
-  int16_t width = 50;
-  int16_t height = 50;
+  int16_t x = 0;
+  int16_t y = 0;
+  int16_t width = 400;
+  int16_t height = 20;
 
   // 设置矩形的颜色
   uint16_t color = GxEPD_BLACK;
@@ -131,9 +151,19 @@ void DrawFont(){
   // 更新显示
   display.display(true);
 }
+//显示图片
+void DrawImage(){
+  
+  // 绘制图片
+  display.drawBitmap(0, 0, imageBitmap, display.width(), display.height(), GxEPD_BLACK);
+  //display.drawBitmap(60, 60, rili, 60, 60, GxEPD_BLACK);
 
-void loop() {
- // 设置进度条背景颜色
+  // 更新显示
+  display.display();
+}
+//绘制开机进度条
+void onProgressBar(int progress,int x, char* str){
+// 设置进度条背景颜色
   uint16_t backgroundColor = GxEPD_WHITE;
   // 绘制进度条背景
   display.drawRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight, GxEPD_BLACK);
@@ -144,21 +174,18 @@ void loop() {
   int16_t progressWidth = map(progress, 0, 100, 0, progressBarWidth);
   // 绘制进度条填充矩形
   display.fillRect(progressBarX, progressBarY, progressWidth, progressBarHeight, progressColor);
-  u8g2Fonts.setCursor(display.width() / 2, progressBarY+20);
-  u8g2Fonts.print(progress);
-  u8g2Fonts.println("%");
 
+  //设置开机加载文字
+  u8g2Fonts.setCursor(x, progressBarY+35);
+  display.fillRect(progressBarX, progressBarY+20, progressBarWidth, progressBarHeight, GxEPD_WHITE);
+  u8g2Fonts.println(str);
   // 更新显示
   display.display(true);
 
-  // 增加进度
-  progress += 1;
-  if (progress > 100) {
-
-    progress = 0;
-  }
-
   // 等待一段时间
   delay(200);
+}
+
+void loop() {
 
 };
