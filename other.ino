@@ -25,12 +25,7 @@ uint16_t getCenterX(String z) //计算字符居中的X位置
   uint16_t x = (display.width() / 2) - (zf_width / 2);    //计算字符居中的X位置
   return x;
 }
-uint16_t getCenterX(const char* z) //计算字符居中的X位置
-{
-  uint16_t zf_width = u8g2Fonts.getUTF8Width(z);        //获取字符的像素长度
-  uint16_t x = (display.width() / 2) - (zf_width / 2);  //计算字符居中的X位置
-  return x;
-}
+
 double getBatVolBfb(double batVcc) //获取电压的百分比，经过换算并非线性关系
 {
   double bfb = 0.0;

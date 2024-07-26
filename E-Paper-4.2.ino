@@ -87,7 +87,7 @@ void setup() {
 //  // 配置和同步NTP
 //  //configTime(3600 * 8, 0, "pool.ntp.org");
    // 清空屏幕
-   BW_refresh();
+    BW_refresh();
    // 初次更新时间和天气
     updateWeather();
     syncTime();
@@ -99,11 +99,11 @@ void setup() {
 //
 // 
 //  // 显示屏休眠
-//  display.hibernate();
-  String currentDate = "日期:2024年7月24日";
-  drawTitle(currentDate);
-  drawMiddle();
-  drawBottom();
+  display.hibernate();
+
+  // drawTitle();
+  // drawMiddle();
+  // drawBottom();
 }
 
 void loop() {
@@ -112,75 +112,4 @@ void loop() {
   
   delay(1000);
 }
-void display_tbcs() //图标测试
-{
-  
-    
-    String currentDate = "日期:2024年7月24日";
-    drawTitle(currentDate);
-    //绘制电量
-    display.drawInvertedBitmap(370, 5, Bitmap_bat3, 21, 12, heise);
-    display.drawLine(0, 35, 400, 35, 0); //顶部水平线
-//    display.drawInvertedBitmap(0, 0, Bitmap_qt, 45, 45, heise);
-//    display.drawInvertedBitmap(50, 0, Bitmap_dy, 45, 45, heise);
-//    display.drawInvertedBitmap(100, 0, Bitmap_yt, 45, 45, heise);
-//    display.drawInvertedBitmap(150, 0, Bitmap_zheny, 45, 45, heise);
-//    display.drawInvertedBitmap(200, 0, Bitmap_lzybbb, 45, 45, heise);
-//    display.drawInvertedBitmap(250, 0, Bitmap_xy, 45, 45, heise);
-//    display.drawInvertedBitmap(300, 0, Bitmap_zhongy, 45, 45, heise);
-//    display.drawInvertedBitmap(350, 0, Bitmap_dayu, 45, 45, heise);   
-//    
-//    display.drawInvertedBitmap(0, 40, Bitmap_by, 45, 45, heise);
-//    display.drawInvertedBitmap(50, 40, Bitmap_dby, 45, 45, heise);
-//    display.drawInvertedBitmap(100, 40, Bitmap_tdby, 45, 45, heise);
-//    display.drawInvertedBitmap(150, 40, Bitmap_dongy, 45, 45, heise); 
-//    display.drawInvertedBitmap(200, 40, Bitmap_yjx, 45, 45, heise);
-//    display.drawInvertedBitmap(250, 40, Bitmap_zhenx, 45, 45, heise);
-//    display.drawInvertedBitmap(300, 40, Bitmap_xx, 45, 45, heise);  
-//    display.drawInvertedBitmap(350, 40, Bitmap_zhongx, 45, 45, heise); 
-//    
-//    display.drawInvertedBitmap(0, 80, Bitmap_dx, 45, 45, heise);
-//    display.drawInvertedBitmap(100, 80, Bitmap_bx, 45, 45, heise);
-//    display.drawInvertedBitmap(50, 80, Bitmap_lzy, 45, 45, heise);
-//    display.drawInvertedBitmap(150, 80, Bitmap_fc, 45, 45, heise);
-//    display.drawInvertedBitmap(200, 80, Bitmap_ys, 45, 45, heise);
-//    display.drawInvertedBitmap(250, 80, Bitmap_scb, 45, 45, heise);
-//    display.drawInvertedBitmap(300, 80, Bitmap_w, 45, 45, heise);
-//    display.drawInvertedBitmap(350, 80, Bitmap_m, 45, 45, heise);
-//    
-//    display.drawInvertedBitmap(0, 120, Bitmap_f, 45, 45, heise);
-//    display.drawInvertedBitmap(50, 120, Bitmap_jf, 45, 45, heise);
-//    display.drawInvertedBitmap(100, 120, Bitmap_rdfb, 45, 45, heise);
-//    display.drawInvertedBitmap(150, 120, Bitmap_ljf, 45, 45, heise);
-//    display.drawInvertedBitmap(200, 120, Bitmap_wz, 45, 45, heise);
-//    display.drawInvertedBitmap(250, 120, Bitmap_qt_ws, 45, 45, heise);
-//    display.drawInvertedBitmap(300, 120, Bitmap_yt_ws, 45, 45, heise);
-//    display.drawInvertedBitmap(350, 120, Bitmap_dy_ws, 45, 45, heise);
-//    
-//    display.drawInvertedBitmap(0, 160, Bitmap_zy_ws, 45, 45, heise);
-//    display.drawInvertedBitmap(50, 160, Bitmap_zx_ws, 45, 45, heise);
-//    display.drawInvertedBitmap(100, 180, Bitmap_weizhi, 13, 13, heise);
-//    display.drawInvertedBitmap(120, 180, Bitmap_zhuangtai, 13, 13, heise);
-//    display.drawInvertedBitmap(140, 180, Bitmap_gengxing, 13, 13, heise);
-//    display.drawInvertedBitmap(160, 160, Bitmap_riqi, 50, 50, heise);
-//    display.drawInvertedBitmap(220, 160, Bitmap_batlow, 24, 35, heise);
-//    display.drawInvertedBitmap(250, 180, Bitmap_humidity, 13, 13, heise);
-//    display.drawInvertedBitmap(270, 180, Bitmap_fx, 13, 13, heise);
-//    display.drawInvertedBitmap(290, 180, Bitmap_tempSHT30, 16, 16, heise);
-//    display.drawInvertedBitmap(310, 180, Bitmap_humiditySHT30, 16, 16, heise);
-//    display.drawInvertedBitmap(330, 160, Bitmap_peiwangMod, 45, 45, heise);
-//
-//    display.drawInvertedBitmap(0, 200, Bitmap_shizhongMod, 45, 45, heise);
-//    display.drawInvertedBitmap(50, 200, Bitmap_yueduMod, 45, 45, heise);
-//    display.drawInvertedBitmap(100, 200, Bitmap_tianqiMod, 45, 45, heise);
-//    display.drawInvertedBitmap(150, 220, Bitmap_zdy, 16, 16, heise);
-//    display.drawInvertedBitmap(170, 220, Bitmap_dlsd, 19, 31, heise);
-//    display.drawInvertedBitmap(190, 220, Bitmap_bat1, 21, 12, heise);
-//    display.drawInvertedBitmap(220, 220, Bitmap_bat2, 21, 12, heise);
 
-//    display.drawInvertedBitmap(280, 220, Bitmap_sjjg, 31, 22, heise);
-//    display.drawInvertedBitmap(310, 200, Bitmap_fashe, 48, 41, heise);
-//    display.drawInvertedBitmap(360, 220, Bitmap_dlxtb, 11, 16, heise);
-//    display.drawInvertedBitmap(370, 220, Bitmap_wifidk, 16, 13, heise);
-
-}

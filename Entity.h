@@ -40,35 +40,17 @@ struct ActualWeather
 };
 ActualWeather actual;   // 创建结构体变量 目前的天气
 
+const int forecastDays = 5; // 需要保存的预测天数
 struct FutureWeather
 {
-  char status_code[64];       // 错误代码
-
-  char date0[14];             // 今天日期
-  char date0_text_day[20];    // 白天天气现象名称
-  char date0_code_day[4];     // 白天天气现象代码
-  char date0_text_night[16];  // 晚上天气现象名称
-  char date0_code_night[4];   // 晚上天气现象代码
-  char date0_high[5];         // 最高温度
-  char date0_low[5];          // 最低温度
-  char date0_humidity[5];     // 相对湿度
-  char date0_wind_scale[5];   // 风力等级
-
-  char date1[14];             // 明天日期
-  char date1_text_day[20];    // 白天天气现象名称
-  char date1_code_day[4];     // 白天天气现象代码
-  char date1_text_night[16];  // 晚上天气现象名称
-  char date1_code_night[4];   // 晚上天气现象代码
-  char date1_high[5];         // 最高温度
-  char date1_low[5];          // 最低温度
-
-  char date2[14];             // 后天日期
-  char date2_text_day[20];    // 白天天气现象名称
-  char date2_code_day[4];     // 白天天气现象代码
-  char date2_text_night[16];  // 晚上天气现象名称
-  char date2_code_night[4];   // 晚上天气现象代码
-  char date2_high[5];         // 最高温度
-  char date2_low[5];          // 最低温度
+    
+    const char* highTemp[forecastDays];
+    const char* lowTemp[forecastDays];
+    const char* weather[forecastDays];
+    const char* fx[forecastDays];
+    const char* fl[forecastDays];
+    const char* week[forecastDays];
+    const char* notice[forecastDays];
 };
 FutureWeather future; //创建结构体变量 未来天气
 struct RiQi       // 日期 https://api.xygeng.cn/day

@@ -49,14 +49,26 @@ void updateWeather() {
     DynamicJsonDocument doc(1024);
     deserializeJson(doc, payload);
 
-    const char *hightTemp = doc["data"]["forecast"][0]["high"];
-    const char *lowTemp = doc["data"]["forecast"][0]["low"];
-    const char *weather = doc["data"]["forecast"][0]["type"];
-    const char *fx = doc["data"]["forecast"][0]["fx"];
-    const char *fl = doc["data"]["forecast"][0]["fl"];
+    // const int forecastDays = 5; // 需要保存的预测天数
+    // const char* highTemp[forecastDays];
+    // const char* lowTemp[forecastDays];
+    // const char* weather[forecastDays];
+    // const char* fx[forecastDays];
+    // const char* fl[forecastDays];
+    // const char* week[forecastDays];
+
+    for (int i = 0; i < forecastDays; i++) {
+      future.highTemp[i] = doc["data"]["forecast"][i]["high"];
+      future.lowTemp[i] = doc["data"]["forecast"][i]["low"];
+      future.weather[i] = doc["data"]["forecast"][i]["type"];
+      future.fx[i] = doc["data"]["forecast"][i]["fx"];
+      future.fl[i] = doc["data"]["forecast"][i]["fl"];
+      future.week[i]=doc["data"]["forecast"][i]["week"];
+      future.notice[i]=doc["data"]["forecast"][i]["notice"];
+    }
+
     const char *date = doc["date"];
-    // 解析年份、月份和日期
-   
+    
     // 分割日期字符串
     strncpy(riqi.year, date, 4);
     riqi.year[4] = '\0';  // 添加字符串结束符
@@ -66,23 +78,13 @@ void updateWeather() {
 
     strncpy(riqi.day, date + 6, 2);
     riqi.day[2] = '\0';  // 添加字符串结束符
-    String currentDate = "日期:" + String(riqi.year) + "-" + String(riqi.month) + "-" + String(riqi.day);
-    display_partialLine(3, currentDate);
+    
+    //display_partialLine(3, currentDate);
 
-    String tq = "天气:" + String(weather);
-    display_partialLine(4, tq);
-
-    String zgwd = "最高温度:" + String(hightTemp);
-    display_partialLine(13, zgwd);
-
-    String zdwd = "最低温度:" + String(lowTemp);
-    display_partialLine(14, zdwd);
-
-    String f_x = "风向:" + String(fx);
-    display_partialLine(15, f_x);
-
-    String f_l = "风力:" + String(fl);
-    display_partialLine(16, f_l);
+    
+    drawTitle();
+    drawMiddle();
+    drawBottom();
 
     syncTime();
   }
