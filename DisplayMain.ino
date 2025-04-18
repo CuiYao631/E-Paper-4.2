@@ -26,13 +26,12 @@ void display_main()
   unsigned long currentMillis = millis();
 
   // 检查是否需要更新天气信息
-    if (currentMillis - previousWeatherMillis >= weatherInterval) {
-        updateWeather();
-        previousWeatherMillis = currentMillis;
+    if (currentMillis - previousSyncMillis >= syncInterval && !needSync) {
+        // 在主循环中已经处理同步，这里不需要重复操作
     }
 
   // 检查是否需要更新时间
-    updateTime();
+    // 时间更新已在主循环中处理
 }
 //获取并更新日期和天气
 void updateWeather() {

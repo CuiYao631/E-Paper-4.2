@@ -26,7 +26,14 @@ void drawTitle(){
     u8g2Fonts.setCursor(x, 17);
     u8g2Fonts.print(character);
     
+    // 显示电池图标和电量
     display.drawInvertedBitmap(375, 3, Bitmap_bat3, 21, 12, heise);
+    
+    // 显示实际电池电量百分比
+    String batteryText = String(getBatteryPercentage()) + "%";
+    u8g2Fonts.setCursor(345, 17);
+    u8g2Fonts.print(batteryText);
+    
     display.drawLine(0, title_y-1, 400, title_y-1, 0); //顶部水平线
   }
   while (display.nextPage());
