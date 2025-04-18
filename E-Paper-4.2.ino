@@ -13,6 +13,11 @@
 #include "config.h"
 #include "Entity.h"
 
+// 函数声明
+void updateBatteryStatus(bool forceUpdate);
+void readBatteryLevel();
+void initBattery();
+
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "ntp1.aliyun.com", 8 * 3600, 60000); // udp，服务器地址，时间偏移量，更新间隔
 //NTPClient timeClient(ntpUDP, "pool.ntp.org");
@@ -48,8 +53,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("系统启动中...");
 
-  // 初始化电池检测
-  //initBattery();
+  // 初始化电池检测 - 在WiFi连接前初始化电池
+  initBattery();
   Serial.println("电池监测初始化完成");
 
   if (initSDCard()) {
@@ -79,6 +84,12 @@ void setup() {
     Serial.println("WiFi连接失败，显示离线内容");
     // 可以在这里添加显示离线信息的代码
   }
+
+  // 初始化按钮
+  setupButtons();
+  Serial.println("按钮初始化完成");
+
+  
   
   // 清空屏幕并更新内容
   BW_refresh();
@@ -87,6 +98,7 @@ void setup() {
   updateWeather();
   syncTime();
   updateTime();
+
   
   // 初始化时间戳
   previousTimeMillis = millis();
@@ -99,8 +111,9 @@ void setup() {
 void loop() {
   unsigned long currentMillis = millis();
   
-  // 更新电池状态
-  //updateBatteryStatus();
+  // 更新按钮状态
+  updateButtons();
+  
   
   // 检查是否需要联网同步时间和天气(每小时)
   if (currentMillis - previousSyncMillis >= syncInterval || needSync) {
@@ -133,6 +146,30 @@ void loop() {
   // 检查是否需要更新时间(每秒)
   if (currentMillis - previousTimeMillis >= timeInterval) {
     updateTime();
+    
+    // 每分钟更新一次电池状态
+    static unsigned long lastBatteryUpdateMillis = 0;
+    if (currentMillis - lastBatteryUpdateMillis >= 60000) {  // 60000ms = 1分钟
+      // 确保WiFi断开，以获取准确的电池读数
+      bool wifiWasConnected = (WiFi.status() == WL_CONNECTED);
+      if (wifiWasConnected) {
+        // 临时断开WiFi连接
+        WiFi.disconnect(false);  // false表示断开但保留配置
+        delay(100);  // 等待WiFi模块完全停止活动
+      }
+      
+      // 更新电池状态（强制更新）
+      updateBatteryStatus(true);
+      Serial.println("已更新电池状态（每分钟）");
+      
+      // 如果之前WiFi是连接的，并且需要重新连接
+      if (wifiWasConnected && needSync) {
+        WiFi.reconnect();
+      }
+      
+      lastBatteryUpdateMillis = currentMillis;
+    }
+    
     previousTimeMillis = currentMillis;
   }
   
@@ -156,6 +193,7 @@ void loop() {
     if (wifiConnected) {
       // 当前已连接但不需要时断开
       disconnectWiFi();
+      
       wifiConnected = false;
     }
   }
@@ -163,12 +201,20 @@ void loop() {
   // 不要每次循环都让显示屏休眠，这可能导致频繁的Busy Timeout
   // 只在不需要频繁更新时休眠显示屏
   static unsigned long lastHibernateMillis = 0;
+  static unsigned long lastLoopMillis = 0;
+  
   if (currentMillis - lastHibernateMillis >= 30000) { // 每30秒才休眠一次
     display.hibernate();
     lastHibernateMillis = currentMillis;
   }
   
-  // 延长延迟时间，给墨水屏更多时间处理命令
-  delay(1000);
+  // 用非阻塞延时替代delay(1000)
+  // 这样可以保证按钮响应的及时性，同时仍然给墨水屏足够的处理时间
+  if (currentMillis - lastLoopMillis < 50) {
+    // 此处不使用delay，让loop快速循环以检测按钮状态
+    // 但每50ms才执行一次主要逻辑，避免过度占用CPU
+    return;
+  }
+  lastLoopMillis = currentMillis;
 }
 
