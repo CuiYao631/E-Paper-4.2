@@ -41,49 +41,35 @@ void drawTitle(){
 }
 
 //绘制中间部分 中间这部分在时间下面，显示的是未来几天的天气
-void drawMiddle( ){
+void drawMiddle(){
+  // 定义每个天气栏的X坐标位置
+  const uint16_t xPositions[5] = {25, 105, 185, 255, 325};
+  
   u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);
-//  const char *character = zf.c_str();                            //String转换char
-//  uint16_t zf_width = u8g2Fonts.getUTF8Width(character);         //获取字符的像素长度
-//  uint16_t x = (display.width() / 2) - (zf_width / 2);           //计算字符居中的X坐标（屏幕宽度/2-字符宽度/2）
-
   display.setPartialWindow(0, 140, display.width(), 140); //设置局部刷新窗口
   display.firstPage();
   do
   {
-//    u8g2Fonts.setCursor(x, 0 * 16 + 13);
-//    u8g2Fonts.print(character);
-//    display.drawInvertedBitmap(375, 2, Bitmap_bat3, 21, 12, heise);
     display.drawLine(0, 140, 400, 140, 0); //中间水平线
     
-    //display.drawLine(0, 140, 400, 140, 0); //中间水平线
+    //日期标签
+    const char* dayLabels[3] = {"今天", "明天", "后天"};
     
-    //日期
-    u8g2Fonts.setCursor(30, 158);
-    u8g2Fonts.print("今天");
-    u8g2Fonts.setCursor(110, 158);
-    u8g2Fonts.print("明天");
-    u8g2Fonts.setCursor(190, 158);
-    u8g2Fonts.print("后天");
-    u8g2Fonts.setCursor(260, 158);
-    u8g2Fonts.print(future.week[3]);
-    u8g2Fonts.setCursor(330, 158);
-    u8g2Fonts.print(future.week[4]);
-
-    //天气
-    drawWeatherBitmap(30-5,String(future.weather[0]));
-    drawWeatherBitmap(110-5,String(future.weather[1]));
-    drawWeatherBitmap(190-5,String(future.weather[2]));
-    drawWeatherBitmap(260-5,String(future.weather[3]));
-    drawWeatherBitmap(330-5,String(future.weather[4]));
-
-    //温度
-    drawtemperature(30-6 ,String(future.highTemp[0]),String(future.lowTemp[0]));
-    drawtemperature(110-6 ,String(future.highTemp[1]),String(future.lowTemp[1]));
-    drawtemperature(190-6 ,String(future.highTemp[2]),String(future.lowTemp[2]));
-    drawtemperature(260-6 ,String(future.highTemp[3]),String(future.lowTemp[3]));
-    drawtemperature(330-6 ,String(future.highTemp[4]),String(future.lowTemp[4]));
-    
+    // 渲染日期标签
+    for(uint8_t i = 0; i < 5; i++) {
+      u8g2Fonts.setCursor(xPositions[i], 158);
+      if(i < 3) {
+        u8g2Fonts.print(dayLabels[i]);
+      } else {
+        u8g2Fonts.print(future.week[i]);
+      }
+      
+      // 天气图标和文字
+      drawWeatherBitmap(xPositions[i]-5, String(future.weather[i]));
+      
+      // 温度
+      drawtemperature(xPositions[i]-6, String(future.highTemp[i]), String(future.lowTemp[i]));
+    }
   }
   while (display.nextPage());
 }
@@ -109,52 +95,103 @@ void drawBottom(){
 }
 
 //显示天气图标和文字
-void drawWeatherBitmap(uint16_t x,String type){
-  if (type==""){ display.drawInvertedBitmap(x, 170, Bitmap_wz, 45, 45, heise);}
-  else if (type=="晴") { display.drawInvertedBitmap(x, 170, Bitmap_qt, 45, 45, heise);u8g2Fonts.setCursor(x+15, 225);u8g2Fonts.print(type);}
-  else if (type=="多云"){  display.drawInvertedBitmap(x, 170, Bitmap_yt, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="阴"){  display.drawInvertedBitmap(x, 170, Bitmap_dy, 45, 45, heise);u8g2Fonts.setCursor(x+15, 225);u8g2Fonts.print(type);}
-  else if (type=="小雨") { display.drawInvertedBitmap(x, 170, Bitmap_xy, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="小到中雨") { display.drawInvertedBitmap(x, 170, Bitmap_zhongy, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="中雨"){  display.drawInvertedBitmap(x, 170, Bitmap_zhongy, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="中到大雨") { display.drawInvertedBitmap(x, 170, Bitmap_dayu, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="大雨"){  display.drawInvertedBitmap(x, 170, Bitmap_dayu, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="大到暴雨") { display.drawInvertedBitmap(x, 170, Bitmap_by, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="暴雨") { display.drawInvertedBitmap(x, 170, Bitmap_by, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="暴雨到大暴雨"){  display.drawInvertedBitmap(x, 170, Bitmap_dby, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="大暴雨") { display.drawInvertedBitmap(x, 170, Bitmap_dby, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="大暴雨到特大暴雨") { display.drawInvertedBitmap(x, 170, Bitmap_tdby, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="特大暴雨") { display.drawInvertedBitmap(x, 170, Bitmap_tdby, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="冻雨") { display.drawInvertedBitmap(x, 170, Bitmap_dongy, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="阵雨"){  display.drawInvertedBitmap(x, 170, Bitmap_zheny, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="雷阵雨") { display.drawInvertedBitmap(x, 170, Bitmap_lzy, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="雨夹雪"){  display.drawInvertedBitmap(x, 170, Bitmap_yjx, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="雷阵雨伴有冰雹") { display.drawInvertedBitmap(x, 170, Bitmap_lzybbb, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="小雪") { display.drawInvertedBitmap(x, 170, Bitmap_xx, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="小到中雪") { display.drawInvertedBitmap(x, 170, Bitmap_zhongx, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="中雪"){  display.drawInvertedBitmap(x, 170, Bitmap_zhongx, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="中到大雪") { display.drawInvertedBitmap(x, 170, Bitmap_dx, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="大雪") { display.drawInvertedBitmap(x, 170, Bitmap_dx, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="大到暴雪"){  display.drawInvertedBitmap(x, 170, Bitmap_dx, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="暴雪"){  display.drawInvertedBitmap(x, 170, Bitmap_dx, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="阵雪"){  display.drawInvertedBitmap(x, 170, Bitmap_dx, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="强沙尘暴"){  display.drawInvertedBitmap(x, 170, Bitmap_scb, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="扬沙"){  display.drawInvertedBitmap(x, 170, Bitmap_ys, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="沙尘暴") { display.drawInvertedBitmap(x, 170, Bitmap_scb, 45, 45, heise);u8g2Fonts.setCursor(x, 225);u8g2Fonts.print(type);}
-  else if (type=="浮尘"){  display.drawInvertedBitmap(x, 170, Bitmap_fc, 45, 45, heise);u8g2Fonts.setCursor(x+5, 225);u8g2Fonts.print(type);}
-  else if (type=="雾") { display.drawInvertedBitmap(x, 170, Bitmap_w, 45, 45, heise);u8g2Fonts.setCursor(x+15, 225);u8g2Fonts.print(type);}
-  else if (type=="霾") { display.drawInvertedBitmap(x, 170, Bitmap_m, 45, 45, heise);u8g2Fonts.setCursor(x+15, 225);u8g2Fonts.print(type);}
+void drawWeatherBitmap(uint16_t x, String type) {
+  // 天气图标和文字对齐偏移表
+  struct WeatherIconMapping {
+    const char* weatherType;
+    const uint8_t* bitmap;
+    int8_t textOffsetX;
+  };
+  
+  // 定义天气图标映射关系
+  static const WeatherIconMapping weatherIcons[] = {
+    {"", Bitmap_wz, 0},         // 未知天气
+    {"晴", Bitmap_qt, 15},
+    {"多云", Bitmap_yt, 5},
+    {"阴", Bitmap_dy, 15},
+    {"小雨", Bitmap_xy, 5},
+    {"小到中雨", Bitmap_zhongy, 0},
+    {"中雨", Bitmap_zhongy, 5},
+    {"中到大雨", Bitmap_dayu, 0},
+    {"大雨", Bitmap_dayu, 5},
+    {"大到暴雨", Bitmap_by, 0},
+    {"暴雨", Bitmap_by, 5},
+    {"暴雨到大暴雨", Bitmap_dby, 0},
+    {"大暴雨", Bitmap_dby, 0},
+    {"大暴雨到特大暴雨", Bitmap_tdby, 0},
+    {"特大暴雨", Bitmap_tdby, 0},
+    {"冻雨", Bitmap_dongy, 5},
+    {"阵雨", Bitmap_zheny, 5},
+    {"雷阵雨", Bitmap_lzy, 0},
+    {"雨夹雪", Bitmap_yjx, 0},
+    {"雷阵雨伴有冰雹", Bitmap_lzybbb, 0},
+    {"小雪", Bitmap_xx, 5},
+    {"小到中雪", Bitmap_zhongx, 0},
+    {"中雪", Bitmap_zhongx, 5},
+    {"中到大雪", Bitmap_dx, 0},
+    {"大雪", Bitmap_dx, 5},
+    {"大到暴雪", Bitmap_dx, 5},
+    {"暴雪", Bitmap_dx, 5},
+    {"阵雪", Bitmap_dx, 5},
+    {"强沙尘暴", Bitmap_scb, 0},
+    {"扬沙", Bitmap_ys, 5},
+    {"沙尘暴", Bitmap_scb, 0},
+    {"浮尘", Bitmap_fc, 5},
+    {"雾", Bitmap_w, 15},
+    {"霾", Bitmap_m, 15}
+  };
+  
+  // 默认使用未知天气图标
+  const uint8_t* iconBitmap = Bitmap_wz;
+  int8_t textOffset = 0;
+  
+  // 查找匹配的天气类型
+  const int numWeatherTypes = sizeof(weatherIcons) / sizeof(WeatherIconMapping);
+  for (int i = 0; i < numWeatherTypes; i++) {
+    if (type == weatherIcons[i].weatherType) {
+      iconBitmap = weatherIcons[i].bitmap;
+      textOffset = weatherIcons[i].textOffsetX;
+      break;
+    }
+  }
+  
+  // 绘制天气图标
+  display.drawInvertedBitmap(x, 170, iconBitmap, 45, 45, heise);
+  
+  // 绘制天气文字
+  if (type != "") {
+    u8g2Fonts.setCursor(x + textOffset, 225);
+    u8g2Fonts.print(type);
+  }
 }
 //显示最高温度和最低温度
-void drawtemperature(uint16_t x,String highTemp,String lowTemp){
-
-    u8g2Fonts.setCursor(x, 250);
-    int highdelimiterIndex = highTemp.indexOf(" "); // 查找分隔符的位置
-    String hightemperature ="高 "+ highTemp.substring(highdelimiterIndex + 1); // 获取分隔符后的子字
-    u8g2Fonts.print(hightemperature);
-    u8g2Fonts.setCursor(x, 275);
-    int lowdelimiterIndex = lowTemp.indexOf(" "); // 查找分隔符的位置
-    String lowtemperature ="低 "+lowTemp.substring(lowdelimiterIndex + 1); // 获取分隔符后的子字
-    u8g2Fonts.print(lowtemperature);
+void drawtemperature(uint16_t x, String highTemp, String lowTemp) {
+  // 提取并显示最高温度
+  int highdelimiterIndex = highTemp.indexOf(" "); // 查找分隔符的位置
+  String hightemperature = "高 ";
+  
+  // 仅当找到分隔符才进行子字符串提取
+  if (highdelimiterIndex != -1) {
+    hightemperature += highTemp.substring(highdelimiterIndex + 1); // 获取分隔符后的子字符串
+  } else {
+    hightemperature += highTemp; // 如果没有分隔符，使用完整字符串
+  }
+  
+  u8g2Fonts.setCursor(x, 250);
+  u8g2Fonts.print(hightemperature);
+  
+  // 提取并显示最低温度
+  int lowdelimiterIndex = lowTemp.indexOf(" "); // 查找分隔符的位置
+  String lowtemperature = "低 ";
+  
+  // 仅当找到分隔符才进行子字符串提取
+  if (lowdelimiterIndex != -1) {
+    lowtemperature += lowTemp.substring(lowdelimiterIndex + 1); // 获取分隔符后的子字符串
+  } else {
+    lowtemperature += lowTemp; // 如果没有分隔符，使用完整字符串
+  }
+  
+  u8g2Fonts.setCursor(x, 275);
+  u8g2Fonts.print(lowtemperature);
 }
 

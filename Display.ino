@@ -1,34 +1,34 @@
 
 
-SPISettings spi_settings(4000000, MSBFIRST, SPI_MODE0);
-#define dc 0
-#define cs 15
-void EPD_writeCommand(uint8_t c)
-{
-  SPI.beginTransaction(spi_settings);
-  if (dc >= 0) digitalWrite(dc, LOW);  //dc
-  if (cs >= 0) digitalWrite(cs, LOW);  //cs
-  SPI.transfer(c);
-  if (dc >= 0) digitalWrite(dc, HIGH);   //dc
-  if (cs >= 0) digitalWrite(cs, HIGH);   //cs
-  SPI.endTransaction();
-}
-void EPD_writeData(uint8_t d)
-{
-  SPI.beginTransaction(spi_settings);
-  if (cs >= 0) digitalWrite(cs, LOW); //cs
-  SPI.transfer(d);
-  if (cs >= 0) digitalWrite(cs, HIGH); //cs
-  SPI.endTransaction();
-}
-void xiaobian() //消除黑边（四周的边跟随屏幕刷新，仅全局刷新有效）
-{
-  EPD_writeCommand(0x3c);  // 边界波形控制寄存器
-  EPD_writeData(0x33);     // 向里面写入数据
+// SPISettings spi_settings(4000000, MSBFIRST, SPI_MODE0);
+// #define dc 0
+// #define cs 15
+// void EPD_writeCommand(uint8_t c)
+// {
+//   SPI.beginTransaction(spi_settings);
+//   if (dc >= 0) digitalWrite(dc, LOW);  //dc
+//   if (cs >= 0) digitalWrite(cs, LOW);  //cs
+//   SPI.transfer(c);
+//   if (dc >= 0) digitalWrite(dc, HIGH);   //dc
+//   if (cs >= 0) digitalWrite(cs, HIGH);   //cs
+//   SPI.endTransaction();
+// }
+// void EPD_writeData(uint8_t d)
+// {
+//   SPI.beginTransaction(spi_settings);
+//   if (cs >= 0) digitalWrite(cs, LOW); //cs
+//   SPI.transfer(d);
+//   if (cs >= 0) digitalWrite(cs, HIGH); //cs
+//   SPI.endTransaction();
+// }
+// void xiaobian() //消除黑边（四周的边跟随屏幕刷新，仅全局刷新有效）
+// {
+//   EPD_writeCommand(0x3c);  // 边界波形控制寄存器
+//   EPD_writeData(0x33);     // 向里面写入数据
 
-  //EPD_writeCommand(0x2c); // VCOM setting
-  //EPD_writeData(0xA1);    // * different   FPC丝印A1 库默认A8
-}
+//   //EPD_writeCommand(0x2c); // VCOM setting
+//   //EPD_writeData(0xA1);    // * different   FPC丝印A1 库默认A8
+// }
 
 void BW_refresh() //黑白刷新一次
 {
@@ -37,6 +37,33 @@ void BW_refresh() //黑白刷新一次
   display.display(1);         // 显示缓冲内容到屏幕，用于全屏缓冲
   display.fillScreen(baise);
   display.display(1);
+}
+
+// 绘制居中文本
+void drawCenteredText(const char* text, int16_t x, int16_t y, bool isInverted) {
+  // 获取文本宽度（u8g2_for_adafruit_gfx库没有直接获取边界的方法）
+  int16_t textWidth = u8g2Fonts.getUTF8Width(text);
+  
+  // 计算居中位置
+  int16_t x1 = x - textWidth / 2;
+  int16_t y1 = y;
+  
+  // 设置颜色（正常或反转）
+  if (isInverted) {
+    u8g2Fonts.setForegroundColor(baise);
+    u8g2Fonts.setBackgroundColor(heise);
+  } else {
+    u8g2Fonts.setForegroundColor(heise);
+    u8g2Fonts.setBackgroundColor(baise);
+  }
+  
+  // 绘制文本
+  u8g2Fonts.setCursor(x1, y1);
+  u8g2Fonts.print(text);
+  
+  // 恢复默认颜色
+  u8g2Fonts.setForegroundColor(heise);
+  u8g2Fonts.setBackgroundColor(baise);
 }
 ////绘制矩形
 //void DrawRectangle(){

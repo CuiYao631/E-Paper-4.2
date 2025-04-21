@@ -1,16 +1,12 @@
 /**
  * SD卡管理模块
  * 负责处理SD卡的初始化、读写操作等
+ * 引脚配置在config.h中定义
  */
 
+#include "config.h"
 #include <SD.h>
 #include <SPI.h>
-
-// 定义SD卡的引脚配置
-#define SD_CS_PIN 33    // 定义SD卡的CS引脚
-#define SD_MISO_PIN 13  // MISO引脚
-#define SD_MOSI_PIN 12  // MOSI引脚
-#define SD_CLK_PIN 14   // CLK引脚
 
 SPIClass sdSPI(VSPI);   // 使用VSPI接口
 

@@ -1,15 +1,10 @@
 /*
  * 按钮管理
  * 使用Button2库配置四个按钮
- * 引脚: 32, 35, 34, 39
+ * 引脚在config.h中定义
 */
+#include "config.h"
 #include <Button2.h>
-
-// 定义按钮引脚
-#define BTN_PIN1 32  // 按钮1引脚
-#define BTN_PIN2 35  // 按钮2引脚
-#define BTN_PIN3 34  // 按钮3引脚
-#define BTN_PIN4 39  // 按钮4引脚
 
 // 提前声明按钮回调函数
 void btn1ClickHandler(Button2& btn);
@@ -84,10 +79,24 @@ void btn1ClickHandler(Button2& btn) {
 // 按钮1长按回调函数
 void btn1LongClickHandler(Button2& btn) {
   Serial.println("按钮1被长按");
-  // 这里添加按钮1长按时的操作
-  // 例如: 进入配网模式
-  eepUserSet.runMode = 4; // 假设4是配网模式
-  Serial.println("进入配网模式");
+  // 清除WiFi配置并重启
+  display.setFullWindow();
+  display.firstPage();
+  do {
+    display.fillScreen(GxEPD_WHITE);
+    u8g2Fonts.setCursor(50, 100);
+    u8g2Fonts.print("正在清除WiFi配置...");
+    u8g2Fonts.setCursor(50, 130);
+    u8g2Fonts.print("设备将在3秒后重启");
+  } while (display.nextPage());
+  
+  // 调用函数重置WiFi设置
+  resetWiFiSettings();
+  Serial.println("WiFi配置已清除，准备重启...");
+  
+  // 等待3秒后重启设备
+  delay(3000);
+  ESP.restart();
 }
 
 // 按钮2点击回调函数

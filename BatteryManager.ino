@@ -1,4 +1,4 @@
-#define BATTERY_PIN 25      // 更改为 GPIO 35（ADC1_CH7），这是模拟专用引脚，没有内部上拉电阻
+#define BATTERY_PIN 39      // 更改为 GPIO 35（ADC1_CH7），这是模拟专用引脚，没有内部上拉电阻
 #define BATTERY_READ_INTERVAL 60000  // 电池电量读取间隔，单位毫秒（1分钟）
 #define BATTERY_MAX_VOLTAGE 4.2      // 电池最高电压（满电）
 #define BATTERY_MIN_VOLTAGE 3.3      // 电池最低电压（需要充电）
