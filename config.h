@@ -73,6 +73,9 @@ unsigned long previousSyncMillis = 0;    // 上次联网同步的时间(天气�
 
 /*----------------------------------------- 系统参数配置 -----------------------------------------*/
 /* 时间间隔 */
+//const long syncInterval = 1800000;       // 30分钟的毫秒数(联网同步天气和时间)
+//const long syncInterval = 600000;       // 10分钟的毫秒数(联网同步天气和时间)
+//const long syncInterval = 120000;       // 2分钟的毫秒数(联网同步天气和时间)
 const long syncInterval = 3600000;       // 1小时的毫秒数(联网同步天气和时间)
 const long timeInterval = 1000;          // 1秒的毫秒数(更新时间)
 

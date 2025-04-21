@@ -30,7 +30,6 @@ GxEPD2_2IC_BW<GxEPD2_2IC_420_A03, GxEPD2_2IC_420_A03::HEIGHT> display(GxEPD2_2IC
 U8G2_FOR_ADAFRUIT_GFX u8g2Fonts;
 
 // 定义进度条参数
-int16_t progressBarX = display.width() / 2 / 2;
 int16_t progressBarY = 200;
 int16_t progressBarWidth = 200;
 int16_t progressBarHeight = 20;
@@ -67,64 +66,65 @@ void setup()
   display.fillScreen(GxEPD_WHITE);
   // DrawImage();
   //  开机进度条
-  onProgressBar(1, progressBarX + 35, "系统启动中...");
+  onProgressBar(5, 0, "系统启动中...");
 
   initBattery();
   Serial.println("电池监测初始化完成");
-  onProgressBar(10, progressBarX + 30, "电池监测初始化完成");
+  onProgressBar(15, 0, "电池监测初始化完成");
 
   if (initSDCard())
   {
     Serial.println("SD卡初始化成功!");
-    onProgressBar(20, progressBarX + 30, "SD卡初始化成功");
+    onProgressBar(25, 0, "SD卡初始化成功");
   }
   else
   {
     Serial.println("SD卡初始化失败，将使用离线模式");
-    onProgressBar(20, progressBarX + 30, "SD卡初始化失败");
+    onProgressBar(25, 0, "SD卡初始化失败");
   }
 
   // 初始化温湿度传感器
   // if (initDHT30()) {
   //   Serial.println("DHT30传感器初始化成功");
-  //   onProgressBar(30, progressBarX + 30, "DHT30传感器初始化成功");
+  //   onProgressBar(35, progressBarX + 30, "DHT30传感器初始化成功");
   // } else {
   //   Serial.println("DHT30传感器初始化失败");
-  //   onProgressBar(30, progressBarX + 30, "DHT30传感器初始化失败");
+  //   onProgressBar(35, progressBarX + 30, "DHT30传感器初始化失败");
   // }
-  onProgressBar(30, progressBarX + 20, "DHT30传感器初始化成功");
+  onProgressBar(35, 0, "DHT30传感器初始化成功");
 
   // 初始化光线传感器
   // if (initBH1750()) {
   //   Serial.println("BH1750传感器初始化成功");
-  //   onProgressBar(40, progressBarX + 30, "BH1750传感器初始化成功");
+  //   onProgressBar(45, progressBarX + 30, "BH1750传感器初始化成功");
   // } else {
   //   Serial.println("BH1750传感器初始化失败");
-  //   onProgressBar(40, progressBarX + 30, "BH1750传感器初始化失败");
+  //   onProgressBar(45, progressBarX + 30, "BH1750传感器初始化失败");
   // }
-  onProgressBar(40, progressBarX + 20, "BH1750传感器初始化成功");
+  onProgressBar(45, 0, "BH1750传感器初始化成功");
 
   // 初始化按钮
   setupButtons();
   Serial.println("按钮初始化完成");
-  onProgressBar(50, progressBarX + 30, "按钮初始化完成");
+  onProgressBar(55, 0, "按钮初始化完成");
 
-  onProgressBar(60, progressBarX + 30, "正在配置wifi...");
+  onProgressBar(65, 0, "正在配置wifi...");
 
   // 连接WiFi (使用WiFiManager模块)
   if (connectWiFi())
   {
     // 继续初始化流程
     Serial.println("wifi连接成功");
-    onProgressBar(70, progressBarX + 30, "wifi连接成功");
+    onProgressBar(85, 0, "wifi连接成功");
   }
   else
   {
     // WiFi连接失败处理
     Serial.println("WiFi连接失败，显示配置信息");
-    onProgressBar(70, progressBarX + 30, "wifi连接失败");
+    onProgressBar(85, 0, "wifi连接失败");
     // WiFi配置信息将在configModeCallback函数中显示
   }
+  onProgressBar(100, 0, "欢迎使用");
 
   // 清空屏幕并更新内容
   BW_refresh();
@@ -145,125 +145,135 @@ void setup()
 void loop()
 {
   unsigned long currentMillis = millis();
+  static unsigned long lastDisplayUpdateMillis = 0; // 上次更新显示的时间
+  static unsigned long lastBatteryUpdateMillis = 0; // 上次更新电池状态的时间
+  static unsigned long lastHibernateMillis = 0;     // 上次休眠屏幕的时间
+  static unsigned long lastLoopMillis = 0;          // 上次循环执行的时间
+  static bool syncInProgress = false;               // 同步操作是否正在进行中
+  
+  // 循环执行频率控制，每50ms执行一次主逻辑，避免过度占用CPU
+  if (currentMillis - lastLoopMillis < 50)
+  {
+    // 只更新按钮状态以确保按钮响应的及时性
+    updateButtons();
+    return;
+  }
+  lastLoopMillis = currentMillis;
 
   // 更新按钮状态
   updateButtons();
 
-  // 检查是否需要联网同步时间和天气(每小时)
-  if (currentMillis - previousSyncMillis >= syncInterval || needSync)
+  // 检查是否需要联网同步时间和天气(每半小时)
+  if ((currentMillis - previousSyncMillis >= syncInterval || needSync) && !syncInProgress)
   {
-    Serial.println("开始执行每小时联网同步...");
+    syncInProgress = true;  // 标记同步操作开始
+    Serial.println("开始执行每半小时联网同步...");
 
-    // 确保WiFi已连接
-    if (checkWiFiConnection())
+    // 提前确认是否需要连接WiFi
+    bool needWiFi = true;
+    
+    // 只在需要时连接WiFi，避免不必要的连接
+    if (needWiFi && !wifiConnected)
     {
-      // 同步时间
-      syncTime();
-      Serial.println("NTP时间已同步");
+      if (connectWiFi())
+      {
+        wifiConnected = true;
+        Serial.println("WiFi已连接以准备同步");
+        
 
-      // 更新天气
-      updateWeather();
-      Serial.println("天气数据已更新");
-
-      // 更新时间戳并清除同步标记
-      previousSyncMillis = currentMillis;
-      needSync = false;
-
-      // 全屏刷新一次，确保所有数据都正确显示
+      // 清空屏幕并更新内容
       BW_refresh();
+
+        // 初次更新时间和天气
+        updateWeather();
+        Serial.println("天气数据已更新");
+        syncTime();
+        Serial.println("NTP时间已同步");
+        updateTime();
+
+        // 更新时间戳并清除同步标记
+        previousSyncMillis = currentMillis;
+        needSync = false;
+        
+        // 同步完成后断开WiFi以节省电量
+        disconnectWiFi();
+        wifiConnected = false;
+        Serial.println("同步完成，已断开WiFi连接");
+      }
+      else
+      {
+        // WiFi连接失败处理，使用指数退避策略减少重试频率
+        Serial.println("WiFi连接失败，稍后重试同步");
+        needSync = true;
+        // 不使用阻塞延时，而是标记下次重试的时间
+        static int retryCount = 0;
+        static unsigned long nextRetryTime = 0;
+        
+        if (retryCount < 3) {
+          // 前几次快速重试
+          nextRetryTime = currentMillis + 30000; // 30秒后重试
+          retryCount++;
+        } else {
+          // 之后延长重试间隔
+          nextRetryTime = currentMillis + 300000; // 5分钟后重试
+        }
+        
+        // 如果下次成功连接，重置重试计数
+        if (currentMillis >= nextRetryTime) {
+          syncInProgress = false;
+        }
+      }
     }
-    else
-    {
-      // WiFi连接失败，5分钟后重试
-      Serial.println("WiFi连接失败，5分钟后重试同步");
-      needSync = true;
-      delay(300000); // 5分钟延迟
-    }
+    
+    syncInProgress = false;  // 标记同步操作结束
   }
 
   // 检查是否需要更新时间(每秒)
   if (currentMillis - previousTimeMillis >= timeInterval)
   {
     updateTime();
+    previousTimeMillis = currentMillis;
+    
+    // 更新显示，减少不必要的刷新
+    if (currentMillis - lastDisplayUpdateMillis >= 10000) { // 每10秒刷新一次完整显示
+      display_main();
+      lastDisplayUpdateMillis = currentMillis;
+    }
 
-    // 每分钟更新一次电池状态
-    static unsigned long lastBatteryUpdateMillis = 0;
+    // 每分钟更新一次电池状态，避免频繁读取
     if (currentMillis - lastBatteryUpdateMillis >= 60000)
-    { // 60000ms = 1分钟
-      // 确保WiFi断开，以获取准确的电池读数
+    { 
+      // 更新电池状态前确保WiFi是断开的，以获取准确的电池读数
       bool wifiWasConnected = (WiFi.status() == WL_CONNECTED);
-      if (wifiWasConnected)
+      if (wifiWasConnected && !syncInProgress)
       {
-        // 临时断开WiFi连接
         WiFi.disconnect(false); // false表示断开但保留配置
-        delay(100);             // 等待WiFi模块完全停止活动
+        delay(50);              // 缩短延时，减少阻塞时间
       }
 
       // 更新电池状态（强制更新）
       updateBatteryStatus(true);
       Serial.println("已更新电池状态（每分钟）");
 
-      // 如果之前WiFi是连接的，并且需要重新连接
-      if (wifiWasConnected && needSync)
+      // 如果之前WiFi是连接的并且需要重新连接
+      if (wifiWasConnected && needSync && !syncInProgress)
       {
         WiFi.reconnect();
       }
 
       lastBatteryUpdateMillis = currentMillis;
     }
-
-    previousTimeMillis = currentMillis;
   }
 
-  // 更新显示
-  display_main();
-
-  // 控制WiFi连接状态：只有在需要同步时或即将需要同步时保持WiFi连接
-  bool needWiFi = (currentMillis - previousSyncMillis >= syncInterval - 10000) || needSync;
-
-  if (needWiFi)
-  {
-    // 需要WiFi连接
-    if (!wifiConnected)
-    {
-      // 当前无连接但需要连接时
-      if (connectWiFi())
-      {
-        wifiConnected = true;
-        Serial.println("WiFi已连接以准备同步");
-      }
+  // 只在不需要频繁更新时休眠显示屏，以节省电力
+  if (currentMillis - lastHibernateMillis >= 60000)  // 增加到60秒休眠一次
+  { 
+    // 检查是否有任何即将发生的操作需要活跃显示屏
+    bool activityExpected = (currentMillis - previousSyncMillis >= syncInterval - 15000) || needSync;
+    
+    if (!activityExpected) {
+      display.hibernate();
+      lastHibernateMillis = currentMillis;
     }
   }
-  else
-  {
-    // 不需要网络连接时
-    if (wifiConnected)
-    {
-      // 当前已连接但不需要时断开
-      disconnectWiFi();
-
-      wifiConnected = false;
-    }
-  }
-
-  // 不要每次循环都让显示屏休眠，这可能导致频繁的Busy Timeout
-  // 只在不需要频繁更新时休眠显示屏
-  static unsigned long lastHibernateMillis = 0;
-  static unsigned long lastLoopMillis = 0;
-
-  if (currentMillis - lastHibernateMillis >= 30000)
-  { // 每30秒才休眠一次
-    display.hibernate();
-    lastHibernateMillis = currentMillis;
-  }
-
-  // 用非阻塞延时替代delay(1000)
-  // 这样可以保证按钮响应的及时性，同时仍然给墨水屏足够的处理时间
-  if (currentMillis - lastLoopMillis < 50)
-  {
-    // 此处不使用delay，让loop快速循环以检测按钮状态
-    // 但每50ms才执行一次主要逻辑，避免过度占用CPU
-    return;
-  }
-  lastLoopMillis = currentMillis;
 }

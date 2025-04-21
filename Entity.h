@@ -59,7 +59,8 @@ struct RiQi       // 日期 https://api.xygeng.cn/day
   char year[5];   // 年
   char month[3];  // 月
   char date[3];   // 日
-  char day[12];   // 星期几
+  char day[12];   // 日期
+  char weekday[12]; // 星期几
   char festival[64]; // 节日名
   int hours;   //小时
   int minutes; //分钟

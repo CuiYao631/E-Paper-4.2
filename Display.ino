@@ -113,9 +113,14 @@ void DrawImage(){
   display.display();
 }
 //绘制开机进度条
-void onProgressBar(int progress,int x, char* str){
-// 设置进度条背景颜色
+// 计算屏幕中心位置并自动居中显示进度条和文字
+void onProgressBar(int progress, int x, char* str){
+  // 设置进度条背景颜色
   uint16_t backgroundColor = GxEPD_WHITE;
+  
+  // 计算进度条的水平居中位置
+  int16_t progressBarX = (display.width() - progressBarWidth) / 2;
+  
   // 绘制进度条背景
   display.drawRect(progressBarX, progressBarY, progressBarWidth, progressBarHeight, GxEPD_BLACK);
 
@@ -126,10 +131,19 @@ void onProgressBar(int progress,int x, char* str){
   // 绘制进度条填充矩形
   display.fillRect(progressBarX, progressBarY, progressWidth, progressBarHeight, progressColor);
 
-  //设置开机加载文字
-  u8g2Fonts.setCursor(x, progressBarY+35);
+  // 计算文字宽度以居中显示
+  const char *character = str;
+  uint16_t textWidth = u8g2Fonts.getUTF8Width(character); // 获取文字像素宽度
+  // 计算文字居中的X坐标 = 进度条起始X + (进度条宽度 - 文字宽度)/2
+  uint16_t textX = progressBarX + (progressBarWidth - textWidth) / 2;
+  
+  // 清除上一次的文字区域
   display.fillRect(progressBarX, progressBarY+20, progressBarWidth, progressBarHeight, GxEPD_WHITE);
+  
+  // 设置开机加载文字在居中位置
+  u8g2Fonts.setCursor(textX, progressBarY+35);
   u8g2Fonts.println(str);
+  
   // 更新显示
   display.display(true);
 

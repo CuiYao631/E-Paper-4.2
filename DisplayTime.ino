@@ -64,6 +64,25 @@ void syncTime() {
   Serial.print("获取到epoch时间: ");
   Serial.println(epochTime);
   
+  // 验证获取到的时间是否有效（不小于2025年1月1日）
+  const unsigned long minValidEpoch = 1735689600; // 2025年1月1日的时间戳
+  int retries = 0;
+  const int maxRetries = 3;
+  
+  while (epochTime < minValidEpoch && retries < maxRetries) {
+    Serial.println("获取到的时间无效，时间戳过小，重新获取...");
+    delay(1000); // 等待1秒后重试
+    timeClient.update();
+    epochTime = timeClient.getEpochTime();
+    Serial.print("重试获取epoch时间: ");
+    Serial.println(epochTime);
+    retries++;
+  }
+  
+  if (epochTime < minValidEpoch) {
+    Serial.println("警告：多次尝试后仍无法获取有效时间，使用最后一次获取的时间");
+  }
+  
   // 使用timeClient提供的方法获取时间组件
   riqi.hours = timeClient.getHours();
   riqi.minutes = timeClient.getMinutes();
@@ -94,22 +113,20 @@ void syncTime() {
   
   // 获取完整日期（从timeClient的epoch时间）
   struct tm timeinfo;
-  localtime_r((time_t*)&epochTime, &timeinfo);
+  time_t t = epochTime;
+  localtime_r(&t, &timeinfo);
   
   // 更新riqi结构体的年月日
   sprintf(riqi.year, "%04d", timeinfo.tm_year + 1900);
   sprintf(riqi.month, "%02d", timeinfo.tm_mon + 1);
   sprintf(riqi.day, "%02d", timeinfo.tm_mday);
   
-  // 根据星期几设置day值
-  switch(timeinfo.tm_wday) {
-    case 0: strcpy(riqi.day, "星期日"); break;
-    case 1: strcpy(riqi.day, "星期一"); break;
-    case 2: strcpy(riqi.day, "星期二"); break;
-    case 3: strcpy(riqi.day, "星期三"); break;
-    case 4: strcpy(riqi.day, "星期四"); break;
-    case 5: strcpy(riqi.day, "星期五"); break;
-    case 6: strcpy(riqi.day, "星期六"); break;
+  // 保存星期几到单独的变量，而不是覆盖日期
+  const char* weekdays[] = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+  if (timeinfo.tm_wday >= 0 && timeinfo.tm_wday <= 6) {
+    strcpy(riqi.weekday, weekdays[timeinfo.tm_wday]);
+  } else {
+    strcpy(riqi.weekday, "未知");
   }
   
   Serial.print("日期: ");
@@ -119,7 +136,7 @@ void syncTime() {
   Serial.print("/");
   Serial.print(riqi.day);
   Serial.print(" ");
-  Serial.println(riqi.day);
+  Serial.println(riqi.weekday);
 
   // 时间设置到RTC中
   setCustomTime(atoi(riqi.year), atoi(riqi.month), atoi(riqi.day), riqi.hours, riqi.minutes, riqi.seconds);
@@ -134,22 +151,31 @@ void drawTime(uint32_t RTC_hour,  uint32_t RTC_minute,uint32_t RTC_seconds){
     assembleTime = hour + ":" + minute;
     Serial.println(assembleTime);
     u8g2Fonts.setFont(u8g2_font_logisoso92_tn);
-    const char *character = assembleTime.c_str();
     
-    uint16_t zf_width = u8g2Fonts.getUTF8Width(character)+7; // 获取字符的像素宽度 //添加X轴偏移量
+    // 计算最大宽度 - 使用模拟时间"88:88"来计算最大可能宽度
+    const char *maxWidthTime = "88:88";
+    uint16_t maxWidth = u8g2Fonts.getUTF8Width(maxWidthTime) + 7; // 最大宽度 + 偏移量
+    
     int16_t fontAscent = u8g2Fonts.getFontAscent(); // 获取字体上升高度
     int16_t fontDescent = u8g2Fonts.getFontDescent(); // 获取字体下降高度
     int16_t zf_height = fontAscent - fontDescent; // 计算字符高度
   
-    //uint16_t x = (display.width() / 2) - (zf_width / 2); // 计算字符居中的X坐标（屏幕宽度/2 - 字符宽度/2）
-    //int16_t y = ((display.height() / 2) + (zf_height / 2)/2); // 计算字符居中的Y坐标（屏幕高度/2 + 字符高度/2）
-
-    // y=y-55;//向上偏移
-  
-    // 设置局部刷新窗口，窗口的高度应该是字体的高度 
-    display.setPartialWindow(time_x, time_y - fontAscent, zf_width, fontAscent - fontDescent-7);
+    // 设置固定大小的局部刷新窗口，使用最大可能宽度
+    uint16_t refreshWidth = maxWidth; // 使用固定的最大宽度
+    uint16_t refreshHeight = fontAscent - fontDescent - 7;
+    
+    // 设置局部刷新窗口
+    display.setPartialWindow(time_x, time_y - fontAscent, refreshWidth, refreshHeight);
+    
+    // 使用更强的刷新模式（可选）
+    // display.setDisplayMode(DISPLAY_MODE_ACCURATE_REFRESH); // 如果支持此模式
+    
     display.firstPage();
     do {
+      // 先清除区域（可选，取决于屏幕特性）
+      display.fillRect(time_x, time_y - fontAscent, refreshWidth, refreshHeight, GxEPD_WHITE);
+      
+      // 绘制新的时间文本
       u8g2Fonts.setCursor(time_x, time_y);
       u8g2Fonts.print(assembleTime);
     } while (display.nextPage());
