@@ -23,17 +23,17 @@ bool portalRunning = false;              // 标记配置门户是否正在运行
 
 // 配置参数保存回调函数
 void saveConfigCallback() {
-  Serial.println("配置已保存");
+  // Serial.println("配置已保存");
   // TODO: 如需要，可以在这里添加其他操作，如保存参数到EEPROM等
 }
 
 // WiFiManager配置函数
 void configModeCallback(WiFiManager *myWiFiManager) {
-  Serial.println("已进入配置模式");
-  Serial.print("请连接到热点: ");
-  Serial.println(AP_NAME);
-  Serial.print("配置页面IP: ");
-  Serial.println(WiFi.softAPIP());
+  // Serial.println("已进入配置模式");
+  // Serial.print("请连接到热点: ");
+  // Serial.println(AP_NAME);
+  // Serial.print("配置页面IP: ");
+  // Serial.println(WiFi.softAPIP());
   
   // 使用WiFiManager连接WiFi
   display.setFullWindow();
@@ -50,7 +50,7 @@ void configModeCallback(WiFiManager *myWiFiManager) {
 
 // 连接WiFi函数，使用WiFiManager库实现自动配网
 bool connectWiFi() {
-  Serial.println("正在连接WiFi...");
+  // Serial.println("正在连接WiFi...");
   
   // 设置回调函数
   wifiManager.setSaveConfigCallback(saveConfigCallback);
@@ -67,13 +67,13 @@ bool connectWiFi() {
   
   // 尝试连接WiFi，如果失败则启动配置门户
   if (wifiManager.autoConnect(AP_NAME, AP_PASSWORD)) {
-    Serial.println("\nWiFi连接成功!");
-    Serial.print("IP地址: ");
-    Serial.println(WiFi.localIP());
+    // Serial.println("\nWiFi连接成功!");
+    // Serial.print("IP地址: ");
+    // Serial.println(WiFi.localIP());
     portalRunning = false;
     return true;
   } else {
-    Serial.println("配置门户已关闭，WiFi未连接");
+    // Serial.println("配置门户已关闭，WiFi未连接");
     portalRunning = false;
     return false;
   }
@@ -83,13 +83,13 @@ bool connectWiFi() {
 void disconnectWiFi() {
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
-  Serial.println("WiFi已断开连接");
+  // Serial.println("WiFi已断开连接");
 }
 
 // 检查WiFi连接状态，如果断开则尝试重连
 bool checkWiFiConnection() {
   if (WiFi.status() != WL_CONNECTED) {
-    Serial.println("WiFi连接已断开，尝试重新连接...");
+    // Serial.println("WiFi连接已断开，尝试重新连接...");
     return connectWiFi();
   }
   return true;
@@ -97,26 +97,26 @@ bool checkWiFiConnection() {
 
 // 重置WiFi配置，清除保存的凭据
 bool resetWiFiSettings() {
-  Serial.println("正在重置WiFi设置...");
+  // Serial.println("正在重置WiFi设置...");
   wifiManager.resetSettings();
-  Serial.println("WiFi设置已重置");
+  // Serial.println("WiFi设置已重置");
   return true;
 }
 
 // 启动配置门户，不阻塞程序执行
 bool startConfigPortal() {
   if (!portalRunning) {
-    Serial.println("启动配置门户...");
+    // Serial.println("启动配置门户...");
     wifiManager.setAPCallback(configModeCallback);
     wifiManager.setConfigPortalTimeout(AP_TIMEOUT);
     
     // 创建配置热点，不阻塞
     if (wifiManager.startConfigPortal(AP_NAME, AP_PASSWORD)) {
-      Serial.println("配置门户已启动");
+      // Serial.println("配置门户已启动");
       portalRunning = true;
       return true;
     } else {
-      Serial.println("无法启动配置门户");
+      // Serial.println("无法启动配置门户");
       portalRunning = false;
       return false;
     }
@@ -131,7 +131,7 @@ bool startConfigPortal() {
  * @return 连接是否成功
  */
 bool connectToWiFi(const String& ssid, const String& password) {
-  Serial.printf("尝试连接WiFi: SSID=%s, 密码=%s\n", ssid.c_str(), password.c_str());
+  // Serial.printf("尝试连接WiFi: SSID=%s, 密码=%s\n", ssid.c_str(), password.c_str());
   
   // 断开当前可能存在的WiFi连接
   WiFi.disconnect(true);
@@ -146,20 +146,20 @@ bool connectToWiFi(const String& ssid, const String& password) {
   int timeout = 20; // 20秒超时
   while (WiFi.status() != WL_CONNECTED && timeout > 0) {
     delay(1000);
-    Serial.print(".");
+    // Serial.print(".");
     timeout--;
   }
   
-  Serial.println("");
+  // Serial.println("");
   
   // 检查连接结果
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("WiFi连接成功!");
-    Serial.print("IP地址: ");
-    Serial.println(WiFi.localIP());
+    // Serial.println("WiFi连接成功!");
+    // Serial.print("IP地址: ");
+    // Serial.println(WiFi.localIP());
     return true;
   } else {
-    Serial.println("WiFi连接失败!");
+    // Serial.println("WiFi连接失败!");
     // 连接失败后关闭WiFi以节省电力
     WiFi.disconnect(true);
     WiFi.mode(WIFI_OFF);

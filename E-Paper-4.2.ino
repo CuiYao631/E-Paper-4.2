@@ -54,7 +54,7 @@ void setup()
 {
   // 初始化串口
   Serial.begin(115200);
-  Serial.println("系统启动中...");
+  // Serial.println("系统启动中...");
 
   // 初始化电池检测 - 在WiFi连接前初始化电池
 
@@ -74,49 +74,38 @@ void setup()
   onProgressBar(5, 0, "系统启动中...");
 
   initBattery();
-  Serial.println("电池监测初始化完成");
+  // Serial.println("电池监测初始化完成");
   onProgressBar(15, 0, "电池监测初始化完成");
 
   if (initSDCard())
   {
-    Serial.println("SD卡初始化成功!");
+    // Serial.println("SD卡初始化成功!");
     onProgressBar(25, 0, "SD卡初始化成功");
   }
   else
   {
-    Serial.println("SD卡初始化失败，将使用离线模式");
+    // Serial.println("SD卡初始化失败，将使用离线模式");
     onProgressBar(25, 0, "SD卡初始化失败");
   }
 
-  // 初始化温湿度传感器
-  // if (initDHT30()) {
-  //   Serial.println("DHT30传感器初始化成功");
-  //   onProgressBar(35, progressBarX + 30, "DHT30传感器初始化成功");
-  // } else {
-  //   Serial.println("DHT30传感器初始化失败");
-  //   onProgressBar(35, progressBarX + 30, "DHT30传感器初始化失败");
-  // }
-  onProgressBar(35, 0, "DHT30传感器初始化成功");
-
-  // 初始化光线传感器
-  // if (initBH1750()) {
-  //   Serial.println("BH1750传感器初始化成功");
-  //   onProgressBar(45, progressBarX + 30, "BH1750传感器初始化成功");
-  // } else {
-  //   Serial.println("BH1750传感器初始化失败");
-  //   onProgressBar(45, progressBarX + 30, "BH1750传感器初始化失败");
-  // }
-  onProgressBar(45, 0, "BH1750传感器初始化成功");
+  // 初始化传感器
+  if (initSensors()) {
+    // Serial.println("传感器初始化成功");
+    onProgressBar(35, 0, "传感器初始化成功");
+  } else {
+    // Serial.println("传感器初始化失败");
+    onProgressBar(35, 0, "传感器初始化失败");
+  }
+  
+  // 读取传感器数据
+  updateSensorData();
+  onProgressBar(45, 0, "传感器数据已更新");
 
   // 初始化按钮
   setupButtons();
-  Serial.println("按钮初始化完成");
+  // Serial.println("按钮初始化完成");
   onProgressBar(55, 0, "按钮初始化完成");
   
-  // 初始化蓝牙
-  initBluetooth();
-  Serial.println("蓝牙初始化完成");
-  onProgressBar(65, 0, "蓝牙初始化完成");
   
   onProgressBar(75, 0, "正在配置wifi...");
 
@@ -124,13 +113,13 @@ void setup()
   if (connectWiFi())
   {
     // 继续初始化流程
-    Serial.println("wifi连接成功");
+    // Serial.println("wifi连接成功");
     onProgressBar(85, 0, "wifi连接成功");
   }
   else
   {
     // WiFi连接失败处理
-    Serial.println("WiFi连接失败，显示配置信息");
+    // Serial.println("WiFi连接失败，显示配置信息");
     onProgressBar(85, 0, "wifi连接失败");
     // WiFi配置信息将在configModeCallback函数中显示
   }
@@ -175,14 +164,11 @@ void loop()
   // 更新按钮状态
   updateButtons();
   
-  // 处理蓝牙功能
-  handleBluetooth();
-
   // 检查是否需要联网同步时间和天气(每半小时)
   if ((currentMillis - previousSyncMillis >= syncInterval || needSync) && !syncInProgress)
   {
     syncInProgress = true;  // 标记同步操作开始
-    Serial.println("开始执行每半小时联网同步...");
+    // Serial.println("开始执行每半小时联网同步...");
 
     // 提前确认是否需要连接WiFi
     bool needWiFi = true;
@@ -193,17 +179,16 @@ void loop()
       if (connectWiFi())
       {
         wifiConnected = true;
-        Serial.println("WiFi已连接以准备同步");
+        // Serial.println("WiFi已连接以准备同步");
         
-
-      // 清空屏幕并更新内容
-      BW_refresh();
+        // 清空屏幕并更新内容
+        BW_refresh();
 
         // 初次更新时间和天气
         updateWeather();
-        Serial.println("天气数据已更新");
+        // Serial.println("天气数据已更新");
         syncTime();
-        Serial.println("NTP时间已同步");
+        // Serial.println("NTP时间已同步");
         updateTime();
 
         // 更新时间戳并清除同步标记
@@ -213,12 +198,12 @@ void loop()
         // 同步完成后断开WiFi以节省电量
         disconnectWiFi();
         wifiConnected = false;
-        Serial.println("同步完成，已断开WiFi连接");
+        // Serial.println("同步完成，已断开WiFi连接");
       }
       else
       {
         // WiFi连接失败处理，使用指数退避策略减少重试频率
-        Serial.println("WiFi连接失败，稍后重试同步");
+        // Serial.println("WiFi连接失败，稍后重试同步");
         needSync = true;
         // 不使用阻塞延时，而是标记下次重试的时间
         static int retryCount = 0;
@@ -243,10 +228,12 @@ void loop()
     syncInProgress = false;  // 标记同步操作结束
   }
 
-  // 检查是否需要更新时间(每秒)
+  // 检查是否需要更新时间和传感器数据(每秒)
   if (currentMillis - previousTimeMillis >= timeInterval)
   {
     updateTime();
+    // 更新传感器数据 (每秒更新一次)
+    updateSensorData();
     previousTimeMillis = currentMillis;
     
     // 更新显示，减少不必要的刷新
@@ -268,7 +255,7 @@ void loop()
 
       // 更新电池状态（强制更新）
       updateBatteryStatus(true);
-      Serial.println("已更新电池状态（每分钟）");
+      // Serial.println("已更新电池状态（每分钟）");
 
       // 如果之前WiFi是连接的并且需要重新连接
       if (wifiWasConnected && needSync && !syncInProgress)

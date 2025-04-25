@@ -27,7 +27,7 @@ void initBattery() {
   
   readBatteryLevel();          // 初始读取一次电池电量
   previousBatteryReadMillis = millis(); // 更新上次读取时间
-  Serial.println("电池监测初始化完成");
+  // Serial.println("电池监测初始化完成");
 }
 
 // 读取电池电量
@@ -95,15 +95,15 @@ void readBatteryLevel() {
   }
   
   // 打印详细的调试信息
-  Serial.print("电池原始值: ");
-  Serial.print(rawValue);
-  Serial.print(", 有效读数: ");
-  Serial.print(validReadings);
-  Serial.print(", 电压: ");
-  Serial.print(batteryVoltage, 3); // 显示三位小数
-  Serial.print("V, 电量: ");
-  Serial.print(batteryLevel);
-  Serial.println("%");
+  // Serial.print("电池原始值: ");
+  // Serial.print(rawValue);
+  // Serial.print(", 有效读数: ");
+  // Serial.print(validReadings);
+  // Serial.print(", 电压: ");
+  // Serial.print(batteryVoltage, 3); // 显示三位小数
+  // Serial.print("V, 电量: ");
+  // Serial.print(batteryLevel);
+  // Serial.println("%");
 }
 
 // 更新电池状态（在主循环中定期调用）
@@ -129,11 +129,11 @@ void updateBatteryStatus(bool forceUpdate = false) {
     }
   } else {
     // 如果没有读取新值，打印当前缓存值用于调试
-    Serial.print("电池缓存值 - 原始值: (已缓存), 电压: ");
-    Serial.print(batteryVoltage, 3);
-    Serial.print("V, 电量: ");
-    Serial.print(batteryLevel);
-    Serial.println("%");
+    // Serial.print("电池缓存值 - 原始值: (已缓存), 电压: ");
+    // Serial.print(batteryVoltage, 3);
+    // Serial.print("V, 电量: ");
+    // Serial.print(batteryLevel);
+    // Serial.println("%");
   }
 }
 
