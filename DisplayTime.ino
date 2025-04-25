@@ -51,13 +51,54 @@ void setCustomTime(int year, int month, int day, int hour, int minute, int secon
 void syncTime() {
   Serial.println("开始NTP时间同步...");
   
-  // 确保NTP客户端有足够时间连接到服务器
-  timeClient.begin(); 
+  // 检查WiFi连接状态
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("WiFi未连接，无法进行NTP同步");
+    return;
+  }
   
-
+  // 安全初始化NTP客户端
+  try {
+    timeClient.begin();
+    Serial.println("NTP客户端初始化成功");
+  } catch (...) {
+    Serial.println("NTP客户端初始化失败");
+    return;
+  }
+  
+  // 尝试更新NTP时间，增加超时和错误处理
+  bool updateSuccess = false;
+  int updateRetries = 0;
+  const int maxUpdateRetries = 3;
+  
+  while (!updateSuccess && updateRetries < maxUpdateRetries) {
+    Serial.print("尝试NTP更新，第");
+    Serial.print(updateRetries + 1);
+    Serial.println("次");
     
-  timeClient.update();
-
+    try {
+      updateSuccess = timeClient.update();
+      if (updateSuccess) {
+        Serial.println("NTP更新成功");
+      } else {
+        Serial.println("NTP更新返回失败状态");
+        delay(1000); // 失败后等待1秒再重试
+      }
+    } catch (...) {
+      Serial.println("NTP更新过程中出现异常");
+    }
+    
+    updateRetries++;
+    
+    if (!updateSuccess && updateRetries < maxUpdateRetries) {
+      delay(1000); // 重试前等待1秒
+    }
+  }
+  
+  if (!updateSuccess) {
+    Serial.println("所有NTP更新尝试均失败，时间同步中止");
+    return;
+  }
   
   // 获取小时、分钟、秒
   unsigned long epochTime = timeClient.getEpochTime();

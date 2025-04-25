@@ -123,3 +123,46 @@ bool startConfigPortal() {
   }
   return false;
 }
+
+/**
+ * 通过指定的SSID和密码连接WiFi
+ * @param ssid WiFi的SSID
+ * @param password WiFi的密码
+ * @return 连接是否成功
+ */
+bool connectToWiFi(const String& ssid, const String& password) {
+  Serial.printf("尝试连接WiFi: SSID=%s, 密码=%s\n", ssid.c_str(), password.c_str());
+  
+  // 断开当前可能存在的WiFi连接
+  WiFi.disconnect(true);
+  
+  // 设置WiFi模式为STA模式
+  WiFi.mode(WIFI_STA);
+  
+  // 开始连接WiFi
+  WiFi.begin(ssid.c_str(), password.c_str());
+  
+  // 等待连接，最多等待20秒
+  int timeout = 20; // 20秒超时
+  while (WiFi.status() != WL_CONNECTED && timeout > 0) {
+    delay(1000);
+    Serial.print(".");
+    timeout--;
+  }
+  
+  Serial.println("");
+  
+  // 检查连接结果
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("WiFi连接成功!");
+    Serial.print("IP地址: ");
+    Serial.println(WiFi.localIP());
+    return true;
+  } else {
+    Serial.println("WiFi连接失败!");
+    // 连接失败后关闭WiFi以节省电力
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    return false;
+  }
+}

@@ -14,6 +14,11 @@
 #include "config.h"
 #include "Entity.h"
 
+// 蓝牙管理功能声明
+extern void initBluetooth();
+extern void handleBluetooth();
+extern void forceUpdateAdvertising();
+
 // 函数前向声明
 void drawCenteredText(const char *text, int16_t x, int16_t y, bool isInverted);
 
@@ -107,8 +112,13 @@ void setup()
   setupButtons();
   Serial.println("按钮初始化完成");
   onProgressBar(55, 0, "按钮初始化完成");
-
-  onProgressBar(65, 0, "正在配置wifi...");
+  
+  // 初始化蓝牙
+  initBluetooth();
+  Serial.println("蓝牙初始化完成");
+  onProgressBar(65, 0, "蓝牙初始化完成");
+  
+  onProgressBar(75, 0, "正在配置wifi...");
 
   // 连接WiFi (使用WiFiManager模块)
   if (connectWiFi())
@@ -124,6 +134,8 @@ void setup()
     onProgressBar(85, 0, "wifi连接失败");
     // WiFi配置信息将在configModeCallback函数中显示
   }
+
+
   onProgressBar(100, 0, "欢迎使用");
 
   // 清空屏幕并更新内容
@@ -162,6 +174,9 @@ void loop()
 
   // 更新按钮状态
   updateButtons();
+  
+  // 处理蓝牙功能
+  handleBluetooth();
 
   // 检查是否需要联网同步时间和天气(每半小时)
   if ((currentMillis - previousSyncMillis >= syncInterval || needSync) && !syncInProgress)
