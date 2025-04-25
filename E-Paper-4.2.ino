@@ -107,20 +107,20 @@ void setup()
   onProgressBar(55, 0, "按钮初始化完成");
   
   
-  onProgressBar(75, 0, "正在配置wifi...");
+  onProgressBar(75, 0, "正在配置WIFI...");
 
   // 连接WiFi (使用WiFiManager模块)
   if (connectWiFi())
   {
     // 继续初始化流程
     // Serial.println("wifi连接成功");
-    onProgressBar(85, 0, "wifi连接成功");
+    onProgressBar(85, 0, "WIFI连接成功");
   }
   else
   {
     // WiFi连接失败处理
     // Serial.println("WiFi连接失败，显示配置信息");
-    onProgressBar(85, 0, "wifi连接失败");
+    onProgressBar(85, 0, "WIFI连接失败");
     // WiFi配置信息将在configModeCallback函数中显示
   }
 
