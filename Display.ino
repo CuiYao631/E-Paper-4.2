@@ -65,53 +65,17 @@ void drawCenteredText(const char* text, int16_t x, int16_t y, bool isInverted) {
   u8g2Fonts.setForegroundColor(heise);
   u8g2Fonts.setBackgroundColor(baise);
 }
-////绘制矩形
-//void DrawRectangle(){
-//  // 设置矩形的坐标和大小
-//  int16_t x = 0;
-//  int16_t y = 0;
-//  int16_t width = 400;
-//  int16_t height = 20;
-//
-//  // 设置矩形的颜色
-//  uint16_t color = GxEPD_BLACK;
-//
-//  // 绘制矩形
-//  display.drawRect(x, y, width, height, color);
-//
-//
-//  // 更新显示
-//  display.display();
-//}
-//
-////绘制圆形
-//void DrawCircle(){
-//  int16_t x = display.width() / 2; // 屏幕中心点的 x 坐标
-//  int16_t y = display.height() / 2; // 屏幕中心点的 y 坐标
-//  int16_t radius = 30; // 圆形的半径
-//
-//  // 设置圆形的颜色
-//  uint16_t color = GxEPD_BLACK;
-//
-//  // 绘制圆形
-//  display.drawCircle(x, y, radius, color);
-//
-//  // 更新显示
-//  display.display(true);
-//   // 等待一段时间
-//  delay(5000);
-//}
 
 //显示图片
-void DrawImage(){
+// void DrawImage(){
   
-  // 绘制图片
-  display.drawBitmap(0, 0, imageBitmap, display.width(), display.height(), GxEPD_BLACK);
-  //display.drawBitmap(60, 60, rili, 60, 60, GxEPD_BLACK);
+//   // 绘制图片
+//   display.drawBitmap(0, 0, imageBitmap, display.width(), display.height(), GxEPD_BLACK);
+//   //display.drawBitmap(60, 60, rili, 60, 60, GxEPD_BLACK);
 
-  // 更新显示
-  display.display();
-}
+//   // 更新显示
+//   display.display();
+// }
 //绘制开机进度条
 // 计算屏幕中心位置并自动居中显示进度条和文字
 void onProgressBar(int progress, int x, char* str){

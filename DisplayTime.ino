@@ -4,7 +4,7 @@
 */
 #include <time.h> // 添加time.h头文件以支持time_t和gmtime
 #define time_x 66 //时间位置X
-#define time_y 123 //时间位置Y
+#define time_y 124 //时间位置Y
 
 
 //更新时间
@@ -25,6 +25,13 @@ void updateTime() {
   if(RTC_hour != riqi.hours || RTC_minute != riqi.minutes) {
     Serial.println("时间发生变化，更新显示");
     drawTime(RTC_hour, RTC_minute, RTC_seconds);
+    
+    // 检查是否是整点（分钟为0），如果是则设置同步标志
+    if (RTC_minute == 0) {
+      extern bool needSync;
+      needSync = true;
+      Serial.println("整点到达，标记需要同步天气和时间");
+    }
   }
   
   // 即使没有分钟变化，也需要更新内部时间状态

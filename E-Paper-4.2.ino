@@ -164,11 +164,11 @@ void loop()
   // 更新按钮状态
   updateButtons();
   
-  // 检查是否需要联网同步时间和天气(每半小时)
-  if ((currentMillis - previousSyncMillis >= syncInterval || needSync) && !syncInProgress)
+  // 检查是否需要联网同步时间和天气(每小时整点)
+  if (needSync && !syncInProgress)
   {
     syncInProgress = true;  // 标记同步操作开始
-    // Serial.println("开始执行每半小时联网同步...");
+    // Serial.println("开始执行整点联网同步...");
 
     // 提前确认是否需要连接WiFi
     bool needWiFi = true;

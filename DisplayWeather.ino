@@ -2,36 +2,45 @@
  * 显示日期和天气图标的位置
 */
 
-#define title_y 22 //顶部位置Y
+#define title_y 28 //顶部位置Y
 #define middle_y 140 //中间部分位置Y
 
 
 //绘制顶部 顶部数据包括 wifi信号，日期，电池电量
 void drawTitle(){
   String currentDate = String(riqi.year) + "-" + String(riqi.month) + "-" + String(riqi.day);
-  u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);
+  
+  // 为日期单独使用大一号字体，使其更醒目
+  u8g2Fonts.setFont(u8g2_font_inb16_mf);  // 使用18px字体来显示日期
   const char *character = currentDate.c_str();                            //String转换char
   uint16_t zf_width = u8g2Fonts.getUTF8Width(character);         //获取字符的像素长度
   uint16_t x = (display.width() / 2) - (zf_width / 2);           //计算字符居中的X坐标（屏幕宽度/2-字符宽度/2）
+  
   //display.setPartialWindow(0,  16, display.width(), 16);   //整行刷新
   display.setPartialWindow(0, 0, display.width(), title_y); //设置局部刷新窗口
   display.firstPage();
   do
   {
     //位置小图标
-    display.drawInvertedBitmap(5, 5, Bitmap_weizhi, 13, 13, heise);
-    u8g2Fonts.setCursor(20, 17);
+    display.drawInvertedBitmap(5, 7, Bitmap_weizhi, 13, 13, heise);
+    
+    // 位置信息使用小号字体
+    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);  // 使用15px字体来显示位置信息
+    u8g2Fonts.setCursor(20, 18);
     u8g2Fonts.print("西安");
 
-    u8g2Fonts.setCursor(x, 17);
+    // 切换到大字体显示日期
+    u8g2Fonts.setFont(u8g2_font_inb16_mf); 
+    u8g2Fonts.setCursor(x, 20);  // 适当调整Y坐标以适应新字体
     u8g2Fonts.print(character);
     
-    // 显示电池图标和电量
-    display.drawInvertedBitmap(375, 3, Bitmap_bat3, 21, 12, heise);
+    // 显示电池图标和电量，使用小号字体
+    display.drawInvertedBitmap(375, 7, Bitmap_bat3, 21, 12, heise);
     
-    // 显示实际电池电量百分比
+    // 使用小号字体显示电池电量
+    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);
     String batteryText = String(getBatteryPercentage()) + "%";
-    u8g2Fonts.setCursor(345, 17);
+    u8g2Fonts.setCursor(345, 18);
     u8g2Fonts.print(batteryText);
     
     display.drawLine(0, title_y-1, 400, title_y-1, 0); //顶部水平线
