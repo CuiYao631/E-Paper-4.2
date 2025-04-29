@@ -65,7 +65,7 @@ void setup()
   u8g2Fonts.setFontDirection(0);
   u8g2Fonts.setForegroundColor(heise);
   u8g2Fonts.setBackgroundColor(baise);
-  u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);
+  u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
 
   // 清空屏幕
   display.fillScreen(GxEPD_WHITE);

@@ -25,8 +25,8 @@ void drawTitle(){
     display.drawInvertedBitmap(5, 7, Bitmap_weizhi, 13, 13, heise);
     
     // 位置信息使用小号字体
-    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);  // 使用15px字体来显示位置信息
-    u8g2Fonts.setCursor(20, 18);
+    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);  // 使用15px字体来显示位置信息
+    u8g2Fonts.setCursor(25, 20);
     u8g2Fonts.print("西安");
 
     // 切换到大字体显示日期
@@ -35,13 +35,14 @@ void drawTitle(){
     u8g2Fonts.print(character);
     
     // 显示电池图标和电量，使用小号字体
-    display.drawInvertedBitmap(375, 7, Bitmap_bat3, 21, 12, heise);
+    display.drawInvertedBitmap(350, 4, Bitmap_dlxtb, 11, 16, heise);
     
     // 使用小号字体显示电池电量
-    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);
+    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
     String batteryText = String(getBatteryPercentage()) + "%";
-    u8g2Fonts.setCursor(345, 18);
-    u8g2Fonts.print(batteryText);
+    u8g2Fonts.setCursor(360, 18);
+    u8g2Fonts.print("100%"); // 这里可以替换为实际电池电量
+    //u8g2Fonts.print(batteryText);
     
     display.drawLine(0, title_y-1, 400, title_y-1, 0); //顶部水平线
   }
@@ -54,7 +55,7 @@ void drawMiddle(){
   // 定义每个天气栏的X坐标位置
   const uint16_t xPositions[5] = {25, 105, 185, 255, 325};
   
-  u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312a);
+  u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
   display.setPartialWindow(0, 140, display.width(), 140); //设置局部刷新窗口
   display.firstPage();
   do
