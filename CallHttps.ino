@@ -18,10 +18,6 @@ String callHttp(String url)
       if (httpCode == 200 || httpCode == 304 || httpCode == 403 || httpCode == 404 || httpCode == 500) //判断请求是正确
       {
         payload = http.getString();
-        //Serial.println(" ");
-        //Serial.println("http.GET");
-        //Serial.println(payload);
-        //Serial.println(" ");
         return payload;
       }
       else
@@ -88,22 +84,4 @@ boolean ParseRiQi(String content, struct RiQi* jgt)
     return false;
   }
   return true;
-  /*Serial.println(" ");
-    Serial.print("日期年："); Serial.println(riqi.year);
-    Serial.print("日期月："); Serial.println(riqi.month);
-    Serial.print("日期日："); Serial.println(riqi.date);
-    Serial.print("日期星期："); Serial.println(riqi.day);*/
-  /* const char* data_solar_year = data_solar["year"];    // "2021"
-    const char* data_solar_month = data_solar["month"];  // "06"
-    const char* data_solar_date = data_solar["date"];    // "19"
-    const char* data_solar_day = data_solar["day"];      // "星期六"*/
-  /*JsonObject data_lunar = data["lunar"];
-    const char* data_lunar_year = data_lunar["year"];     // "辛丑"
-    const char* data_lunar_animal = data_lunar["animal"]; // "牛"
-    const char* data_lunar_month = data_lunar["month"];   // "五月"
-    const char* data_lunar_date = data_lunar["date"];     // "初十 "*/
-  // 复制我们感兴趣的字符串 ,先检查是否为空，空会导致系统无限重启
-  // 这不是强制复制，你可以使用指针，因为他们是指向"内容"缓冲区内
-  // 所以你需要确保 当你读取字符串时它仍在内存中
-  // isNull()检查是否为空 空返回1 非空0
 }

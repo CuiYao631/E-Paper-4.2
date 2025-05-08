@@ -33,23 +33,6 @@ uint16_t temp_x;             // 温度X位置(动态计算)
 // 其他UI元素
 uint16_t circle_x;           // 圈圈位置(动态计算)
 
-/**
- * @brief 主显示处理函数
- * 
- * 负责管理主屏幕上的所有显示元素，
- * 检查是否需要更新天气和时间信息
- */
-void display_main() {
-  unsigned long currentMillis = millis();
-
-  // 检查是否需要更新天气信息
-  if (currentMillis - previousSyncMillis >= syncInterval && !needSync) {
-    // 在主循环中已经处理同步，这里不需要重复操作
-  }
-
-  // 检查是否需要更新时间
-  // 时间更新已在主循环中处理
-}
 
 /**
  * @brief 获取并更新日期和天气信息

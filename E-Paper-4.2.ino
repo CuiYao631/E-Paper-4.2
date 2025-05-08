@@ -98,7 +98,7 @@ void setup()
   }
   
   // 读取传感器数据
-  updateSensorData();
+  //updateSensorData();
   onProgressBar(45, 0, "传感器数据已更新");
 
   // 初始化按钮
@@ -236,11 +236,6 @@ void loop()
     updateSensorData();
     previousTimeMillis = currentMillis;
     
-    // 更新显示，减少不必要的刷新
-    if (currentMillis - lastDisplayUpdateMillis >= 10000) { // 每10秒刷新一次完整显示
-      display_main();
-      lastDisplayUpdateMillis = currentMillis;
-    }
 
     // 每分钟更新一次电池状态，避免频繁读取
     if (currentMillis - lastBatteryUpdateMillis >= 60000)

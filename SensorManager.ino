@@ -8,6 +8,10 @@
 #include "config.h"
 #include "Adafruit_SHTC3.h"
 
+// 温湿度位置
+#define TEMP_X 5
+#define TEMP_Y 30
+
 // 创建传感器对象
 Adafruit_SHTC3 shtc3 = Adafruit_SHTC3();
 
@@ -96,7 +100,7 @@ bool initSHTC3() {
   shtc3Initialized = true;
   
   // 初始化后马上读取一次数据
-  readSHTC3();
+  //readSHTC3();
   
   return true;
 }
@@ -128,6 +132,8 @@ bool readSHTC3() {
   Serial.print(humidity);
   Serial.println(" %");
   
+  // 显示传感器数据到屏幕
+  displaySensorData(temperature, humidity);
   return true;
 }
 
@@ -183,9 +189,38 @@ String getSensorDataJson() {
 
 /**
  * 显示传感器数据到屏幕
- * 参数: x, y - 显示的起始坐标
+ * 参数: t - 温度值, h - 湿度值
  */
-void displaySensorData(int16_t x, int16_t y) {
-  // 这个函数依赖于主程序中的显示函数，可以根据需要实现
-  // 或者在主程序中调用getSensorDataXXX函数来显示数据
+void displaySensorData(float t, float h) {
+
+    // 设置局部刷新窗口
+  display.setPartialWindow(TEMP_X, TEMP_Y , 50, 60);
+
+
+
+  display.firstPage();
+  do
+  {
+    // 先清除区域（可选，取决于屏幕特性）
+    display.fillRect(TEMP_X, TEMP_Y, 50, 60, GxEPD_WHITE);
+    // 绘制温度图标和数据
+    display.drawInvertedBitmap(TEMP_X, TEMP_Y, Bitmap_tempSHT30, 16, 16, heise);
+    // 构造温湿度显示字符串
+      char tempStr[30];
+      char humiStr[30];
+      sprintf(tempStr, "%.1f °C", t);
+      sprintf(humiStr, "%.1f %%", h);
+      
+      // 显示温度数据
+      u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
+      u8g2Fonts.setCursor(TEMP_X+16, TEMP_Y+15);
+      u8g2Fonts.print(tempStr);
+    // 绘制新的时间文本
+    //u8g2Fonts.setCursor(time_x, time_y);
+    //u8g2Fonts.print(assembleTime);
+    // 显示湿度数据
+     display.drawInvertedBitmap(TEMP_X,  TEMP_Y+20, Bitmap_humiditySHT30, 16, 16, heise);
+    // u8g2Fonts.setCursor(220, 325);
+    // u8g2Fonts.print(humiStr);
+  } while (display.nextPage());
 }
