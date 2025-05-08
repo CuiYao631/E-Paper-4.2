@@ -1,14 +1,14 @@
 
-/*
- * 显示时间
+/**
+ * 显示时间模块
+ * 负责时间的获取、显示和同步
  */
-#include <time.h>  // 添加time.h头文件以支持time_t和gmtime
-#define time_x 66  // 时间位置X
-#define time_y 124 // 时间位置Y
+#include <time.h>
+// 使用config.h中定义的常量
+#include "config.h"
 
-// 更新时间
-// 时间更新规则为：每隔一秒获取一次rtc时间，如果时间发生变化则更新显示时间,以保证时间的准确性
 // 获取并更新时间（局部刷新）
+// 时间更新规则：每隔一秒获取一次RTC时间，如有变化则更新显示
 void updateTime()
 {
   struct tm timeinfo;
@@ -43,10 +43,8 @@ void updateTime()
   riqi.seconds = RTC_seconds;
 }
 
-// 设置时间到自带RTC
-// 设置时间到RTC
+// 设置时间到ESP32内置RTC
 // 该函数需要在WiFi连接后调用
-// 需要在setup()中调用WiFi.begin()连接WiFi
 void setCustomTime(int year, int month, int day, int hour, int minute, int second)
 {
   struct tm tm;
@@ -253,7 +251,7 @@ void drawTime(uint32_t RTC_hour, uint32_t RTC_minute, uint32_t RTC_seconds)
   uint16_t refreshHeight = fontAscent - fontDescent - 7;
 
   // 设置局部刷新窗口
-  display.setPartialWindow(time_x, time_y - fontAscent, refreshWidth, refreshHeight);
+  display.setPartialWindow(TIME_X, TIME_Y - fontAscent, refreshWidth, refreshHeight);
 
   // 使用更强的刷新模式（可选）
   // display.setDisplayMode(DISPLAY_MODE_ACCURATE_REFRESH); // 如果支持此模式
@@ -262,10 +260,10 @@ void drawTime(uint32_t RTC_hour, uint32_t RTC_minute, uint32_t RTC_seconds)
   do
   {
     // 先清除区域（可选，取决于屏幕特性）
-    display.fillRect(time_x, time_y - fontAscent, refreshWidth, refreshHeight, GxEPD_WHITE);
+    display.fillRect(TIME_X, TIME_Y - fontAscent, refreshWidth, refreshHeight, GxEPD_WHITE);
 
     // 绘制新的时间文本
-    u8g2Fonts.setCursor(time_x, time_y);
+    u8g2Fonts.setCursor(TIME_X, TIME_Y);
     u8g2Fonts.print(assembleTime);
   } while (display.nextPage());
 

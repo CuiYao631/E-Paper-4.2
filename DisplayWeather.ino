@@ -3,7 +3,7 @@
  */
 
 #define title_y 28   // 顶部位置Y
-#define middle_y 140 // 中间部分位置Y
+#define middle_y 160 // 中间部分位置Y
 
 // 绘制顶部 顶部数据包括 wifi信号，日期，电池电量
 void drawTitle()
@@ -55,11 +55,11 @@ void drawMiddle()
   const uint16_t xPositions[5] = {25, 105, 185, 255, 325};
 
   u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
-  display.setPartialWindow(0, 140, display.width(), 140); // 设置局部刷新窗口
+  display.setPartialWindow(0, middle_y, display.width(), middle_y); // 设置局部刷新窗口
   display.firstPage();
   do
   {
-    display.drawLine(0, 140, 400, 140, 0); // 中间水平线
+    display.drawLine(0, middle_y, 400, middle_y, 0); // 中间水平线
 
     // 日期标签
     const char *dayLabels[3] = {"今天", "明天", "后天"};
@@ -67,7 +67,7 @@ void drawMiddle()
     // 渲染日期标签
     for (uint8_t i = 0; i < 5; i++)
     {
-      u8g2Fonts.setCursor(xPositions[i], 158);
+      u8g2Fonts.setCursor(xPositions[i], middle_y+25);
       if (i < 3)
       {
         u8g2Fonts.print(dayLabels[i]);
@@ -169,12 +169,12 @@ void drawWeatherBitmap(uint16_t x, String type)
   }
 
   // 绘制天气图标
-  display.drawInvertedBitmap(x, 170, iconBitmap, 45, 45, heise);
+  display.drawInvertedBitmap(x, middle_y+30, iconBitmap, 45, 45, heise);
 
   // 绘制天气文字
   if (type != "")
   {
-    u8g2Fonts.setCursor(x + textOffset, 225);
+    u8g2Fonts.setCursor(x + textOffset, middle_y+85);
     u8g2Fonts.print(type);
   }
 }
@@ -196,7 +196,7 @@ void drawtemperature(uint16_t x, String highTemp, String lowTemp)
     hightemperature += highTemp; // 如果没有分隔符，使用完整字符串
   }
 
-  u8g2Fonts.setCursor(x, 250);
+  u8g2Fonts.setCursor(x, middle_y+110);
   u8g2Fonts.print(hightemperature);
 
   // 提取并显示最低温度
@@ -213,6 +213,6 @@ void drawtemperature(uint16_t x, String highTemp, String lowTemp)
     lowtemperature += lowTemp; // 如果没有分隔符，使用完整字符串
   }
 
-  u8g2Fonts.setCursor(x, 275);
+  u8g2Fonts.setCursor(x, middle_y+135);
   u8g2Fonts.print(lowtemperature);
 }

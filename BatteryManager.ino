@@ -1,10 +1,9 @@
-#define BATTERY_PIN 39      // 更改为 GPIO 35（ADC1_CH7），这是模拟专用引脚，没有内部上拉电阻
-#define BATTERY_READ_INTERVAL 60000  // 电池电量读取间隔，单位毫秒（1分钟）
-#define BATTERY_MAX_VOLTAGE 4.2      // 电池最高电压（满电）
-#define BATTERY_MIN_VOLTAGE 3.3      // 电池最低电压（需要充电）
-#define BATTERY_SAMPLES 20           // 增加采样次数提高精度
-#define REFERENCE_VOLTAGE 3.3        // ESP32 ADC参考电压
-#define VOLTAGE_DIVIDER_RATIO 2.0    // 分压电阻比例（根据实际电路调整）
+/**
+ * 电池管理模块
+ * 负责监测电池电压和电量百分比
+ */
+
+#include "config.h"  // 使用config.h中定义的电池相关常量
 
 int batteryLevel = 0;                // 电池电量百分比（0-100）
 float batteryVoltage = 0.0;          // 电池电压
@@ -19,7 +18,7 @@ void initBattery() {
   analogSetWidth(12);          // 同样设置为12位宽度
   analogSetAttenuation(ADC_11db); // 设置衰减为11db，增加测量范围
   
-  // 进行多次空读来稳定ADC（这在一些ESP32设备上很重要）
+  // 进行多次空读来稳定ADC
   for(int i = 0; i < 5; i++) {
     analogRead(BATTERY_PIN);
     delay(10);
@@ -27,7 +26,6 @@ void initBattery() {
   
   readBatteryLevel();          // 初始读取一次电池电量
   previousBatteryReadMillis = millis(); // 更新上次读取时间
-  // Serial.println("电池监测初始化完成");
 }
 
 // 读取电池电量

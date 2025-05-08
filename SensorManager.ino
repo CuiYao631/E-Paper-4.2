@@ -8,9 +8,16 @@
 #include "config.h"
 #include "Adafruit_SHTC3.h"
 
-// 温湿度位置
-#define TEMP_X 5
-#define TEMP_Y 30
+// 使用config.h中定义的传感器数据显示位置常量
+
+// 函数前向声明
+bool initSHTC3(bool readDataAfterInit, bool updateDisplay, uint8_t updateMode);
+bool readSHTC3(bool updateDisplay, uint8_t updateMode);
+void displayTemperature(float t);
+void displayHumidity(float h);
+void displaySensorData(float t, float h);
+void scanI2C();
+void updateSensorData(uint8_t updateMode);
 
 // 创建传感器对象
 Adafruit_SHTC3 shtc3 = Adafruit_SHTC3();
@@ -24,23 +31,26 @@ bool shtc3Initialized = false;   // SHTC3初始化状态
 
 // 上次读取时间
 unsigned long lastSensorReadTime = 0;
-const unsigned long SENSOR_READ_INTERVAL = 60000;  // 传感器读取间隔，默认每分钟读取一次
+// 使用config.h中定义的SENSOR_READ_INTERVAL
 
 /**
  * 初始化I2C总线和温湿度传感器
  * 返回值: true=传感器初始化成功，false=传感器初始化失败
+ * 参数: readDataAfterInit - 是否在初始化后立即读取数据
+ *       updateDisplay - 是否在读取数据后更新显示
+ *       updateMode - 更新显示模式(0=全部, 1=仅温度, 2=仅湿度)
  */
-bool initSensors() {
+bool initSensors(bool readDataAfterInit, bool updateDisplay, uint8_t updateMode) {
   // 初始化I2C总线，添加上拉电阻
   Wire.begin(PIN_SDA, PIN_SCL);
   // 设置较低的时钟频率，提高兼容性
   Wire.setClock(100000); // 100 kHz
   
   // 打印I2C扫描结果，帮助调试
-  scanI2C();
+  //scanI2C();
   
   // 初始化温湿度传感器
-  return initSHTC3();
+  return initSHTC3(readDataAfterInit, updateDisplay, updateMode);
 }
 
 /**
@@ -86,8 +96,11 @@ void scanI2C() {
 /**
  * 初始化SHTC3温湿度传感器
  * 返回值: true=初始化成功，false=初始化失败
+ * 参数: readDataAfterInit - 是否在初始化后立即读取数据
+ *       updateDisplay - 是否在读取数据后更新显示
+ *       updateMode - 更新显示模式(0=全部, 1=仅温度, 2=仅湿度)
  */
-bool initSHTC3() {
+bool initSHTC3(bool readDataAfterInit, bool updateDisplay, uint8_t updateMode) {
   Serial.println("正在初始化SHTC3温湿度传感器...");
   
   if (!shtc3.begin()) {
@@ -99,8 +112,10 @@ bool initSHTC3() {
   Serial.println("SHTC3传感器初始化成功!");
   shtc3Initialized = true;
   
-  // 初始化后马上读取一次数据
-  //readSHTC3();
+  // // 初始化后根据参数决定是否立即读取一次数据
+  // if (readDataAfterInit) {
+  //   readSHTC3(updateDisplay, updateMode);
+  // }
   
   return true;
 }
@@ -108,8 +123,10 @@ bool initSHTC3() {
 /**
  * 读取SHTC3温湿度数据
  * 返回值: true=读取成功，false=读取失败或传感器未初始化
+ * 参数: updateDisplay - 是否更新显示(true=更新, false=不更新)
+ *       updateMode - 更新模式(0=全部更新, 1=仅温度, 2=仅湿度)
  */
-bool readSHTC3() {
+bool readSHTC3(bool updateDisplay, uint8_t updateMode) {
   if (!shtc3Initialized) {
     return false;
   }
@@ -132,8 +149,20 @@ bool readSHTC3() {
   Serial.print(humidity);
   Serial.println(" %");
   
-  // 显示传感器数据到屏幕
-  displaySensorData(temperature, humidity);
+  // 根据参数更新屏幕显示
+  if (updateDisplay) {
+    if (updateMode == 0) {
+      // 同时更新温度和湿度
+      displaySensorData(temperature, humidity);
+    } else if (updateMode == 1) {
+      // 仅更新温度
+      displayTemperature(temperature);
+    } else if (updateMode == 2) {
+      // 仅更新湿度
+      displayHumidity(humidity);
+    }
+  }
+  
   return true;
 }
 
@@ -142,15 +171,16 @@ bool readSHTC3() {
 /**
  * 定期更新传感器数据
  * 在loop()中定期调用
+ * 参数: updateMode - 更新模式(0=全部更新, 1=仅温度, 2=仅湿度)
  */
-void updateSensorData() {
+void updateSensorData(uint8_t updateMode) {
   unsigned long currentMillis = millis();
   
   // 检查是否到了读取间隔时间
   if (currentMillis - lastSensorReadTime >= SENSOR_READ_INTERVAL) {
     // 更新传感器数据
     if (shtc3Initialized) {
-      readSHTC3();
+      readSHTC3(true, updateMode);
     }
     
     lastSensorReadTime = currentMillis;
@@ -188,39 +218,64 @@ String getSensorDataJson() {
 }
 
 /**
- * 显示传感器数据到屏幕
+ * 显示温度数据到屏幕
+ * 参数: t - 温度值
+ */
+void displayTemperature(float t) {
+  // 设置局部刷新窗口 - 扩大宽度从50到80，确保显示完整温度值
+  display.setPartialWindow(TEMP_X, TEMP_Y, 90, 30);
+
+  display.firstPage();
+  do {
+    // 先清除区域 - 同样扩大清除区域
+    display.fillRect(TEMP_X, TEMP_Y, 80, 30, GxEPD_WHITE);
+    
+    // 绘制温度图标
+    display.drawInvertedBitmap(TEMP_X, TEMP_Y, Bitmap_tempSHT30, 16, 16, heise);
+    
+    // 构造温度显示字符串
+    char tempStr[30];
+    sprintf(tempStr, "%.1f°C", t); // 修改为保留两位小数
+    
+    // 显示温度数据
+    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
+    u8g2Fonts.setCursor(TEMP_X+16, TEMP_Y+15);
+    u8g2Fonts.print(tempStr);
+  } while (display.nextPage());
+}
+
+/**
+ * 显示湿度数据到屏幕
+ * 参数: h - 湿度值
+ */
+void displayHumidity(float h) {
+  // 设置局部刷新窗口 - 扩大宽度从50到80，确保显示完整湿度值
+  display.setPartialWindow(TEMP_X, TEMP_Y+20, 80, 30);
+
+  display.firstPage();
+  do {
+    // 先清除区域 - 同样扩大清除区域
+    display.fillRect(TEMP_X, TEMP_Y+20, 80, 30, GxEPD_WHITE);
+    
+    // 绘制湿度图标
+    display.drawInvertedBitmap(TEMP_X, TEMP_Y+20, Bitmap_humiditySHT30, 16, 16, heise);
+    
+    // 构造湿度显示字符串
+    char humiStr[30];
+    sprintf(humiStr, "%.2f %%", h); // 修改为保留两位小数
+    
+    // 显示湿度数据
+    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
+    u8g2Fonts.setCursor(TEMP_X+16, TEMP_Y+35);
+    u8g2Fonts.print(humiStr);
+  } while (display.nextPage());
+}
+
+/**
+ * 显示传感器数据到屏幕(同时显示温度和湿度)
  * 参数: t - 温度值, h - 湿度值
  */
 void displaySensorData(float t, float h) {
-
-    // 设置局部刷新窗口
-  display.setPartialWindow(TEMP_X, TEMP_Y , 50, 60);
-
-
-
-  display.firstPage();
-  do
-  {
-    // 先清除区域（可选，取决于屏幕特性）
-    display.fillRect(TEMP_X, TEMP_Y, 50, 60, GxEPD_WHITE);
-    // 绘制温度图标和数据
-    display.drawInvertedBitmap(TEMP_X, TEMP_Y, Bitmap_tempSHT30, 16, 16, heise);
-    // 构造温湿度显示字符串
-      char tempStr[30];
-      char humiStr[30];
-      sprintf(tempStr, "%.1f °C", t);
-      sprintf(humiStr, "%.1f %%", h);
-      
-      // 显示温度数据
-      u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
-      u8g2Fonts.setCursor(TEMP_X+16, TEMP_Y+15);
-      u8g2Fonts.print(tempStr);
-    // 绘制新的时间文本
-    //u8g2Fonts.setCursor(time_x, time_y);
-    //u8g2Fonts.print(assembleTime);
-    // 显示湿度数据
-     display.drawInvertedBitmap(TEMP_X,  TEMP_Y+20, Bitmap_humiditySHT30, 16, 16, heise);
-    // u8g2Fonts.setCursor(220, 325);
-    // u8g2Fonts.print(humiStr);
-  } while (display.nextPage());
+  displayTemperature(t);
+  //displayHumidity(h);
 }
