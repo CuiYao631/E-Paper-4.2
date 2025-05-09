@@ -22,11 +22,11 @@ void drawTitle()
   do
   {
     // 位置小图标
-    display.drawInvertedBitmap(5, 7, Bitmap_weizhi, 13, 13, heise);
+    display.drawInvertedBitmap(5, 0, Bitmap_weizhi, 25, 25, heise);
 
     // 位置信息使用小号字体
     u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b); // 使用15px字体来显示位置信息
-    u8g2Fonts.setCursor(25, 20);
+    u8g2Fonts.setCursor(30, 20);
     u8g2Fonts.print("西安");
 
     // 切换到大字体显示日期
@@ -34,14 +34,16 @@ void drawTitle()
     u8g2Fonts.setCursor(x, 20); // 适当调整Y坐标以适应新字体
     u8g2Fonts.print(character);
 
-    // 显示电池图标和电量，使用小号字体
-    display.drawInvertedBitmap(350, 4, Bitmap_dlxtb, 11, 16, heise);
+ 
+
+    // 显示电池图标和电量
+    display.drawInvertedBitmap(370, 0, Bitmap_chongdian, 25, 25, heise);
 
     // 使用小号字体显示电池电量
-    u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
-    String batteryText = String(getBatteryPercentage()) + "%";
-    u8g2Fonts.setCursor(360, 18);
-    u8g2Fonts.print("100%"); // 这里可以替换为实际电池电量
+    // u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
+    // String batteryText = String(getBatteryPercentage()) + "%";
+    // u8g2Fonts.setCursor(360, 18);
+    // u8g2Fonts.print("100%"); // 这里可以替换为实际电池电量
     // u8g2Fonts.print(batteryText);
 
     display.drawLine(0, title_y - 1, 400, title_y - 1, 0); // 顶部水平线

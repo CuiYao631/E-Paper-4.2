@@ -123,6 +123,9 @@ void setup()
   syncTime();          // 同步NTP时间
   updateTime();        // 更新显示时间
   updateSensorData(0); // 更新传感器数据
+  
+  // 显示WiFi状态
+  displayWiFiStatus(); // 在屏幕上显示WiFi状态
 
   // 7. 初始化时间戳
   previousTimeMillis = millis();

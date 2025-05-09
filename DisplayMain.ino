@@ -80,9 +80,6 @@ void updateWeather() {
     drawTitle();   // 绘制顶部标题栏
     drawMiddle();  // 绘制中间天气信息
     //drawBottom();  // 绘制底部提示信息
-
-    // 同步时间
-    syncTime();
   }
 
   // 关闭HTTP连接
@@ -207,6 +204,9 @@ void updateMainDisplay() {
       // 更新电池状态（强制更新）
       updateBatteryStatus(true);
       // Serial.println("已更新电池状态（每分钟）");
+      
+      // 更新WiFi状态显示
+      displayWiFiStatus();
 
       // 如果之前WiFi是连接的并且需要重新连接
       if (wifiWasConnected && needSync && !syncInProgress)

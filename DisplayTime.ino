@@ -91,6 +91,8 @@ void syncTime()
   int updateRetries = 0;
   const int maxUpdateRetries = 3;
 
+
+  
   while (!updateSuccess && updateRetries < maxUpdateRetries)
   {
     Serial.print("尝试NTP更新，第");

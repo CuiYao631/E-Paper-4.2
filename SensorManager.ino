@@ -169,22 +169,18 @@ bool readSHTC3(bool updateDisplay, uint8_t updateMode) {
 
 
 /**
- * 定期更新传感器数据
- * 在loop()中定期调用
+ * 更新传感器数据
+ * 每次调用都会立即读取并显示数据
  * 参数: updateMode - 更新模式(0=全部更新, 1=仅温度, 2=仅湿度)
  */
 void updateSensorData(uint8_t updateMode) {
-  unsigned long currentMillis = millis();
-  
-  // 检查是否到了读取间隔时间
-  if (currentMillis - lastSensorReadTime >= SENSOR_READ_INTERVAL) {
-    // 更新传感器数据
-    if (shtc3Initialized) {
-      readSHTC3(true, updateMode);
-    }
-    
-    lastSensorReadTime = currentMillis;
+  // 直接读取和显示传感器数据，不考虑时间间隔
+  if (shtc3Initialized) {
+    readSHTC3(true, updateMode);
   }
+  
+  // 更新上次读取时间，用于调试或其他功能
+  lastSensorReadTime = millis();
 }
 
 /**
@@ -222,20 +218,20 @@ String getSensorDataJson() {
  * 参数: t - 温度值
  */
 void displayTemperature(float t) {
-  // 设置局部刷新窗口 - 扩大宽度从50到80，确保显示完整温度值
-  display.setPartialWindow(TEMP_X, TEMP_Y, 90, 30);
+  // 设置局部刷新窗口 - 确保刷新区域足够显示图标和文字
+  display.setPartialWindow(TEMP_X, TEMP_Y, 90, 16);
 
   display.firstPage();
   do {
-    // 先清除区域 - 同样扩大清除区域
-    display.fillRect(TEMP_X, TEMP_Y, 80, 30, GxEPD_WHITE);
+    // 先清除区域 - 面积与图标大小一致
+    display.fillRect(TEMP_X, TEMP_Y, 80, 16, GxEPD_WHITE);
     
-    // 绘制温度图标
+    // 绘制温度图标 (16x16像素)
     display.drawInvertedBitmap(TEMP_X, TEMP_Y, Bitmap_tempSHT30, 16, 16, heise);
     
     // 构造温度显示字符串
     char tempStr[30];
-    sprintf(tempStr, "%.1f°C", t); // 修改为保留两位小数
+    sprintf(tempStr, "%d°C", (int)t); // 修改为整数显示，不保留小数
     
     // 显示温度数据
     u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
@@ -249,24 +245,24 @@ void displayTemperature(float t) {
  * 参数: h - 湿度值
  */
 void displayHumidity(float h) {
-  // 设置局部刷新窗口 - 扩大宽度从50到80，确保显示完整湿度值
-  display.setPartialWindow(TEMP_X, TEMP_Y+20, 80, 30);
+  // 设置局部刷新窗口 - 确保刷新区域足够显示图标和文字
+  display.setPartialWindow(HUMI_X, HUMI_Y, 90, 16);
 
   display.firstPage();
   do {
-    // 先清除区域 - 同样扩大清除区域
-    display.fillRect(TEMP_X, TEMP_Y+20, 80, 30, GxEPD_WHITE);
+    // 先清除区域 - 面积与图标大小一致
+    display.fillRect(HUMI_X, HUMI_Y, 80, 16, GxEPD_WHITE);
     
-    // 绘制湿度图标
-    display.drawInvertedBitmap(TEMP_X, TEMP_Y+20, Bitmap_humiditySHT30, 16, 16, heise);
+    // 绘制湿度图标 (16x16像素)
+    display.drawInvertedBitmap(HUMI_X, HUMI_Y, Bitmap_humiditySHT30, 16, 16, heise);
     
     // 构造湿度显示字符串
     char humiStr[30];
-    sprintf(humiStr, "%.2f %%", h); // 修改为保留两位小数
+    sprintf(humiStr, "%d %%", (int)h); // 添加空格，修改为整数显示，不保留小数
     
     // 显示湿度数据
     u8g2Fonts.setFont(u8g2_font_wqy16_t_gb2312b);
-    u8g2Fonts.setCursor(TEMP_X+16, TEMP_Y+35);
+    u8g2Fonts.setCursor(HUMI_X+16, HUMI_Y+15);
     u8g2Fonts.print(humiStr);
   } while (display.nextPage());
 }
@@ -277,5 +273,5 @@ void displayHumidity(float h) {
  */
 void displaySensorData(float t, float h) {
   displayTemperature(t);
-  //displayHumidity(h);
+  displayHumidity(h);
 }

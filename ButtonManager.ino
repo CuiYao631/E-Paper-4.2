@@ -79,24 +79,24 @@ void btn1ClickHandler(Button2& btn) {
 // 按钮1长按回调函数
 void btn1LongClickHandler(Button2& btn) {
   Serial.println("按钮1被长按");
-  // 清除WiFi配置并重启
-  display.setFullWindow();
-  display.firstPage();
-  do {
-    display.fillScreen(GxEPD_WHITE);
-    u8g2Fonts.setCursor(50, 100);
-    u8g2Fonts.print("正在清除WiFi配置...");
-    u8g2Fonts.setCursor(50, 130);
-    u8g2Fonts.print("设备将在3秒后重启");
-  } while (display.nextPage());
+  // // 清除WiFi配置并重启
+  // display.setFullWindow();
+  // display.firstPage();
+  // do {
+  //   display.fillScreen(GxEPD_WHITE);
+  //   u8g2Fonts.setCursor(50, 100);
+  //   u8g2Fonts.print("正在清除WiFi配置...");
+  //   u8g2Fonts.setCursor(50, 130);
+  //   u8g2Fonts.print("设备将在3秒后重启");
+  // } while (display.nextPage());
   
-  // 调用函数重置WiFi设置
-  resetWiFiSettings();
-  Serial.println("WiFi配置已清除，准备重启...");
+  // // 调用函数重置WiFi设置
+  // resetWiFiSettings();
+  // Serial.println("WiFi配置已清除，准备重启...");
   
-  // 等待3秒后重启设备
-  delay(3000);
-  ESP.restart();
+  // // 等待3秒后重启设备
+  // delay(3000);
+  // ESP.restart();
 }
 
 // 按钮2点击回调函数

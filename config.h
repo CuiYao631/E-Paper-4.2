@@ -88,9 +88,9 @@ extern float bat_vcc;               // 电池电压
 
 /* 传感器数据显示位置 */
 #define TEMP_X 1                    // 温度位置X
-#define TEMP_Y 130                  // 温度位置Y
-#define HUMI_X 0                    // 湿度位置X
-#define HUMI_Y 0                    // 湿度位置Y
+#define TEMP_Y 135                  // 温度位置Y
+#define HUMI_X 340                    // 湿度位置X
+#define HUMI_Y 135                    // 湿度位置Y
 
 /* 时间显示位置 */
 #define TIME_X 66                   // 时间位置X

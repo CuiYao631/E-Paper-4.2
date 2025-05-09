@@ -69,6 +69,9 @@ bool connectWiFi() {
 void disconnectWiFi() {
   WiFi.disconnect(true);
   WiFi.mode(WIFI_OFF);
+  
+  // 更新WiFi状态显示为断开状态
+  displayWiFiStatus();
   // Serial.println("WiFi已断开连接");
 }
 
@@ -143,12 +146,20 @@ bool connectToWiFi(const String& ssid, const String& password) {
     // Serial.println("WiFi连接成功!");
     // Serial.print("IP地址: ");
     // Serial.println(WiFi.localIP());
+    
+    // 更新WiFi状态显示
+    displayWiFiStatus();
+    
     return true;
   } else {
     // Serial.println("WiFi连接失败!");
     // 连接失败后关闭WiFi以节省电力
     WiFi.disconnect(true);
     WiFi.mode(WIFI_OFF);
+    
+    // 更新WiFi状态显示为断开状态
+    displayWiFiStatus();
+    
     return false;
   }
 }
